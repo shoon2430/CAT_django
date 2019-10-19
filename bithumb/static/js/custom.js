@@ -86,6 +86,7 @@ const stopClick = () =>{
     TEXT.classList.add('loader-text_stop');
     START.style.display = "block";
     STOP.style.display = "none";
+    ANIMATION.children[2].innerText = "Do Nothing...";
 }
 
 
@@ -99,6 +100,7 @@ const startClick = () =>{
     TEXT.classList.add('loader-text');
     START.style.display = "none";
     STOP.style.display = "block";
+    ANIMATION.children[2].innerText = "Making Money...";
 }
 
 const buttonManageMent = function(){
@@ -117,6 +119,7 @@ $(function() {
     TEXT.classList.add('loader-text_stop');
     START.style.display = "block";
     STOP.style.display = "none";
+    ANIMATION.children[2].innerText = "Do Nothing...";
 
     buttonManageMent();
 

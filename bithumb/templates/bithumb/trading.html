@@ -48,46 +48,70 @@
 
         <div class="container">
             <div class="row">
-                <div class="col col-sm-5">
-                    <table class="table table-hover">
-                    <thead>
+                <div class="col-sm-5 ">
+                    <div class="row" style="padding:5px">
+                         <div class="col-sm-12">
+                             <div class="setRight">
+                                <div class="setLeft">
+                                     <select class="form-control text-center">
+                                        <option value="1">최근 5일 평균 상승폭</option>
+                                        <option value="2">최근 10일 평균 상승폭</option>
+                                        <option value="2">최근 20일 평균 상승폭</option>
+                                    </select>
+                                </div>
+                                <div class="setLeft" style="width:100px">
+                                    <button class="btn btn-primary" id="searchBtn" style="width:100%">Search</button>
+                                </div>
+                             </div>
+                         </div>
+                    </div>
+                    <div style="padding:5px">
+                        <table class="table table-hover">
+                            <colgroup>
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                                <col width="20%">
+                            </colgroup>
+                        <thead>
                         <tr>
-                        <th>T1</th>
-                        <th>T2</th>
-                        <th>T3</th>
-                        <th>T4</th>
-                        <th>T5</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                    <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <th>ticker</th>
+                            <th>price</th>
+                            <th>rating</th>
+                            <th>T4</th>
+                            <th>T5</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
+                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
 
-                    </tbody>
+                        </tbody>
 
-                    </table>
+                        </table>
+                    </div>
                 </div>
-                <div class="col col-sm-7" style="">
+                <div class="col-sm-7" style="">
                         <div class="row" style="padding:5px;">
-                                    <div class="col-2 col-sm-4">
+                                    <div class="col-sm-4">
                                         <div class="input-group" style="width:90px">
                                             <select  class="form-control text-center">
-                                                <option>BTC</option>
-                                                <option>ETH</option>
-                                                <option>REP</option>
+                                                <option value="BTC">BTC</option>
+                                                <option value="ETH">ETH</option>
+                                                <option value="REP">REP</option>
                                             </select>
                                         </div>
                                     </div>
-                                    <div class="col-10 col-sm-8">
+                                    <div class="col-sm-8">
                                         <div style="float:right">
                                             <div style="width:160px; float:left">
                                                 <input class="text-center" id="startDay" placeholder="startDay"/>
@@ -108,13 +132,13 @@
                             </div>
                         </div>
                         <div class="row" style="padding:5px;">
-                            <div class="col-8 col-sm-8 setLeft">
+                            <div class="col-sm-8 setLeft">
                                     <label class="text-center setLeft" for="myMoney" style="width:15%">Money:</label>
                                     <input type="text" class="form-control setLeft" id="myMoney" style="width:35%">
                                     <label class="text-center setLeft" for="myCoin" style="width:15%">Coin:</label>
                                     <input type="text" class="form-control setLeft" id="myCoin"style="width:35%;">
                             </div>
-                            <div class="col-4 col-sm-4">
+                            <div class="col-sm-4">
                                 <div>
                                 <button class="btn btn-primary" id="startBtn" style="width:100%">START</button>
                                 <button class="btn btn-danger" id="stopBtn" style="width:100%; display:none">STOP</button>
@@ -138,7 +162,7 @@
 
     <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
 
-    <script src="/static/js/custom.js?Ver=18"></script>
+    <script src="/static/js/custom.js?Ver=21"></script>
 
   </body>
 </html>

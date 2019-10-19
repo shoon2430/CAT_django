@@ -11,10 +11,11 @@
 
 }
 
+
 .loader-text_stop {
   margin-top: 20px;
   font-size: 30px;
-  letter-spacing: 30px;
+  letter-spacing: 10px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
 
 }
@@ -58,9 +59,9 @@
 .loader-text {
   margin-top: 50px;
   font-size: 30px;
-  letter-spacing: 30px;
+  letter-spacing: 10px;
   text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
-  animation: 20s expand infinite linear;
+  animation: 8s expand infinite linear;
 }
 
 .animation_div p {

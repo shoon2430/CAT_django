@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/static/css/custom.css" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/css/custom.css" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/static/css/making_money.css" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/css/making_money.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/testJs.js" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/static/js/custom.js" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/js/custom.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" afterDir="false" />
     </list>

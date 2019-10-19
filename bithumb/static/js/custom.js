@@ -6,6 +6,13 @@ const tickersFiveAvg = document.querySelectorAll(".ticker_fiveAvg");
 const tickersState = document.querySelectorAll(".ticker_state");
 const ONE_SECONDE = 1000
 
+const ANIMATION = document.querySelector("#animation");
+const ICON = document.querySelector("#animaionIcon");
+const TEXT = document.querySelector("#animaionText");
+
+const START = document.querySelector("#startBtn");
+const STOP = document.querySelector("#stopBtn");
+
 const changeTickersPrice = (resultData) => {
     idx = 0;
     resultData.map((ticker) => {
@@ -66,9 +73,62 @@ const getUpDownData = () =>{
 }
 
 
-$(function() {
 
-    getRealTimeTickersPrice();
-    getUpDownData();
+
+
+const stopClick = () =>{
+    ANIMATION.classList.remove('animation_div');
+    ICON.classList.remove('loader-icon');
+    TEXT.classList.remove('loader-text');
+
+    ANIMATION.classList.add('animation_div_stop');
+    ICON.classList.add('loader-icon_stop');
+    TEXT.classList.add('loader-text_stop');
+    START.style.display = "block";
+    STOP.style.display = "none";
+}
+
+
+const startClick = () =>{
+    ANIMATION.classList.remove('animation_div_stop');
+    ICON.classList.remove('loader-icon_stop');
+    TEXT.classList.remove('loader-text_stop');
+
+    ANIMATION.classList.add('animation_div');
+    ICON.classList.add('loader-icon');
+    TEXT.classList.add('loader-text');
+    START.style.display = "none";
+    STOP.style.display = "block";
+}
+
+const buttonManageMent = function(){
+    START.addEventListener("click",()=>startClick());
+    STOP.addEventListener("click",()=>stopClick());
+}
+
+
+
+
+$(function() {
+    console.log("coustomJS~");
+
+    ANIMATION.classList.add('animation_div_stop');
+    ICON.classList.add('loader-icon_stop');
+    TEXT.classList.add('loader-text_stop');
+    START.style.display = "block";
+    STOP.style.display = "none";
+
+    buttonManageMent();
+
+    $("#startDay").datepicker({
+        uiLibrary: 'bootstrap4'
+    });
+
+    $("#endDay").datepicker({
+        uiLibrary: 'bootstrap4'
+    });
+
+    //getRealTimeTickersPrice();
+    //getUpDownData();
 
 })

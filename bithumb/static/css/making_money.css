@@ -1,3 +1,45 @@
+.animation_div_stop {
+  background: #2e2e2e;
+  background-size: cover;
+  color: #fff;
+  font-family: 'Roboto';
+  font-size: 20px;
+  text-align: center;
+  line-height: 1.4;
+  overflow: hidden;
+  transition: background 2s;
+
+}
+
+.loader-text_stop {
+  margin-top: 20px;
+  font-size: 30px;
+  letter-spacing: 30px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+
+}
+
+.loader-icon_stop{
+  margin: 0 auto;
+  margin-top:30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  position: relative;
+  background: transparent;
+  border: 15px solid #efefef;
+  opacity: 0.5;
+  border-right-color: transparent;
+}
+
+.animation_div_stop p {
+  letter-spacing: 10px;
+  padding: 20px;
+  font-size: 15px;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+}
+
+
 
 .animation_div {
   background: #2e2e2e;
@@ -55,7 +97,7 @@
 }
 
 .loader-icon:before {
-  border-left-color: transparent;
+  border-right-color: transparent;
 }
 
 .loader-icon:after {
@@ -63,7 +105,7 @@
   left: 16.5%;
   width: 80px;
   height: 80px;
-  border-right-color: transparent;
+  border-left-color: transparent;
   opacity: 0.2;
   animation-direction: reverse;
 }

@@ -16,6 +16,8 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 
+# python manage.py runserver 0.0.0.0:8000
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('bithumb.urls'))

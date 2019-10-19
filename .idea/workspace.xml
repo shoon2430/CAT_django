@@ -2,39 +2,36 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="693f1ecc-4edb-4c5a-b565-47b75d0c67db" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.css.map" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap.css.map" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap.min.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/custom.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/css/starter-template.css" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.eot" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.svg" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.ttf" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.woff" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.woff2" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/bootstrap.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/bootstrap.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/custom.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/jquery-3.4.1.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/jquery.min.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/static/js/npm.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/cat.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/css/bootstrap-datepicker.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/css/making_money.css" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/css/testJs.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/image/cat.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/image/logo.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/image/logo_full.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/static/js/bootstrap-datepicker.js" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/trade.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/bithumb_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/admin.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/apps.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/migrations/0001_initial.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/migrations/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/urls.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/models.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/templates/blog/post_list.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/templates/blog/post_test.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/tests.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/urls.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/blog/views.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/cat/settings.py" beforeDir="false" afterPath="$PROJECT_DIR$/cat/settings.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap-theme.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap.css.map" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/bootstrap.min.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/custom.css" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/css/custom.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/css/starter-template.css" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.eot" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.svg" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.ttf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.woff" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/fonts/glyphicons-halflings-regular.woff2" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/js/bootstrap.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/js/bootstrap.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/js/jquery-3.4.1.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/js/jquery.min.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/static/js/npm.js" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/cat/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/cat/urls.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -59,15 +56,20 @@
   <component name="PropertiesComponent">
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/bithumb/templates/trading" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/bithumb/static/js" />
   </component>
   <component name="RecentsManager">
-    <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\templates\bithumb" />
-    </key>
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\static\js" />
       <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\templates\trading" />
       <recent name="C:\Users\정승훈\Desktop\catProject\bithumb" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\static\image" />
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\static\css" />
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\static\js" />
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\static" />
+      <recent name="C:\Users\정승훈\Desktop\catProject\bithumb\templates\bithumb" />
     </key>
   </component>
   <component name="RunDashboard">

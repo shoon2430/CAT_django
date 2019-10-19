@@ -11,6 +11,9 @@ def cat(request):
     data_list = now_data_list(tickers)
     return render(request, 'bithumb/cat.html',{'data':data_list})
 
+def trade(request):
+    return render(request, 'bithumb/trading.html',{})
+
 def price(request):
     now_data = now_data_list(tickers)
     return HttpResponse(json.dumps(now_data), content_type="application/json")

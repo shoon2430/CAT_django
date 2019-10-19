@@ -1,0 +1,82 @@
+
+.animation_div {
+  background: #2e2e2e;
+  background-size: cover;
+  color: #fff;
+  font-family: 'Roboto';
+  font-size: 20px;
+  text-align: center;
+  line-height: 1.4;
+  overflow: hidden;
+  transition: background 2s;
+  animation: 20s background infinite linear;
+}
+
+
+.loader-text {
+  margin-top: 50px;
+  font-size: 30px;
+  letter-spacing: 30px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 1);
+  animation: 20s expand infinite linear;
+}
+
+.animation_div p {
+  letter-spacing: 10px;
+  padding: 20px;
+  font-size: 15px;
+  text-shadow: 0 4px 8px rgba(0, 0, 0, 1);
+}
+
+.loader-icon,
+.loader-icon:before,
+.loader-icon:after {
+  margin-top:30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+}
+
+.loader-icon {
+  margin: 0 auto;
+  position: relative;
+  background: transparent;
+}
+
+.loader-icon:before,
+.loader-icon:after {
+  position: absolute;
+  left: 0;
+  top: 0;
+  content: "";
+  border: 15px solid #efefef;
+  opacity: 0.5;
+  animation: 3s rotate infinite linear;
+}
+
+.loader-icon:before {
+  border-left-color: transparent;
+}
+
+.loader-icon:after {
+  top: 16.5%;
+  left: 16.5%;
+  width: 80px;
+  height: 80px;
+  border-right-color: transparent;
+  opacity: 0.2;
+  animation-direction: reverse;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes expand {
+  50% {
+    transform: scale(1.2);
+  }
+}
+

@@ -4,8 +4,8 @@ import datetime
 import math
 from twilio.rest import Client
 
-CONNECT_KEY = 'a3184c2a864c68fa6615b1a432ccace0'
-SECRET_KEY  = '01e110bc44c7682f2b428aad4d0ea427'
+CONNECT_KEY = ''
+SECRET_KEY  = ''
 
 '''
 빗썸 종목리스트 가져옴
@@ -77,8 +77,8 @@ def get_target_price(ticker):
 
 
 def send_SMS_message(to_number, contents):
-    account_sid = 'AC31166ca4786bcd666a1bdaeafa669479'
-    auth_token = '1b71213c500cc2b50961444b92cf28b4'
+    account_sid = ''
+    auth_token = ''
     from_number = '+12064890783'
     client = Client(account_sid, auth_token)
 
@@ -90,14 +90,6 @@ def send_SMS_message(to_number, contents):
     )
     print('문자메세지가 발송되었습니다. from {0} to {1} message {2} '.format(to_number,from_number,contents))
     print('=> ',message.sid)
-
-#to_number = '+821026841940'
-#contents = 'Hello send SMS message testing!!'
-#send_SMS_message(to_number, contents)
-
-# +12064890783
-# AC31166ca4786bcd666a1bdaeafa669479
-# 1b71213c500cc2b50961444b92cf28b4
 
 
 
@@ -121,3 +113,4 @@ def get_hpr(ticker):
         return df['hpr'][-2]
     except:
         return 1
+

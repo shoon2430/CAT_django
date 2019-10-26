@@ -155,8 +155,9 @@
     </main>
     <div class="container">
         <form sytle="display: none" >
-            <input type="hidden" id="userId" >
+            <input type="hidden" id="userId" value={{data.userId}}>
             <input type="hidden" id="userName">
+            <input type="hidden" id="userStatus" value={{data.userStatus}}>
         </form>
     </div>
 
@@ -166,7 +167,6 @@
 
     <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
 
-    <script src="/static/js/custom.js?Ver=2"></script>
-
+    <script src="/static/js/custom.js?Ver=4"></script>
   </body>
 </html>

@@ -17,7 +17,6 @@ const END_DAY = document.querySelector("#endDay");
 const START = document.querySelector("#startBtn");
 const STOP = document.querySelector("#stopBtn");
 
-
 const changeTickersPrice = (resultData) => {
     idx = 0;
     resultData.map((ticker) => {
@@ -89,18 +88,7 @@ const startClick = () =>{
                         endDay   : END_DAY.value
                         };
 
-    ANIMATION.classList.remove('animation_div_stop');
-    ICON.classList.remove('loader-icon_stop');
-    TEXT.classList.remove('loader-text_stop');
-
-    ANIMATION.classList.add('animation_div');
-    ICON.classList.add('loader-icon');
-    TEXT.classList.add('loader-text');
-    START.style.display = "none";
-    STOP.style.display = "block";
-    ANIMATION.children[1].innerText = "TRADING";
-    ANIMATION.children[2].innerText = "Making Money...";
-
+    setStating();
 
     $.ajax({
         url: '/cat/trade/start',
@@ -110,17 +98,6 @@ const startClick = () =>{
         success: function(data) {
         console.log('trade END!!');
         console.log('MAX : '+data.max);
-            ANIMATION.classList.remove('animation_div');
-            ICON.classList.remove('loader-icon');
-            TEXT.classList.remove('loader-text');
-
-            ANIMATION.classList.add('animation_div_stop');
-            ICON.classList.add('loader-icon_stop');
-            TEXT.classList.add('loader-text_stop');
-            START.style.display = "block";
-            STOP.style.display = "none";
-            ANIMATION.children[1].innerText = "TRADE";
-            ANIMATION.children[2].innerText = "Do Nothing...";
         }
     });
 }
@@ -131,6 +108,9 @@ const stopClick = () =>{
 
     console.log("stopClick!!");
 
+    ANIMATION.children[1].innerText = "ENDING";
+    ANIMATION.children[2].innerText = "Please Wait...";
+
     $.ajax({
         url: '/cat/trade/stop',
         data: sendData,
@@ -139,8 +119,8 @@ const stopClick = () =>{
         async: false,
         success: function(data) {
             console.log(data);
-             ANIMATION.children[1].innerText = "ENDING";
-             ANIMATION.children[2].innerText = "Please Wait...";
+            setNomal();
+
         },
         error:function(request,status,error){
             alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
@@ -156,16 +136,60 @@ const buttonManageMent = function(){
 
 
 
+const setNomal = ()=>{
+    ANIMATION.classList.remove('animation_div');
+    ICON.classList.remove('loader-icon');
+    TEXT.classList.remove('loader-text');
 
-$(function() {
-    console.log("coustomJS~");
+     ANIMATION.classList.add('animation_div_stop');
+     ICON.classList.add('loader-icon_stop');
+     TEXT.classList.add('loader-text_stop');
+     START.style.display = "block";
+     STOP.style.display = "none";
+     ANIMATION.children[1].innerText = "TRADE";
+     ANIMATION.children[2].innerText = "Do Nothing...";
+}
+
+const setStating = ()=>{
+    ANIMATION.classList.remove('animation_div_stop');
+    ICON.classList.remove('loader-icon_stop');
+    TEXT.classList.remove('loader-text_stop');
+
+    ANIMATION.classList.add('animation_div');
+    ICON.classList.add('loader-icon');
+    TEXT.classList.add('loader-text');
+    START.style.display = "none";
+    STOP.style.display = "block";
+    ANIMATION.children[1].innerText = "TRADING";
+    ANIMATION.children[2].innerText = "Making Money...";
+}
+
+const setEnding = ()=>{
+    ANIMATION.classList.remove('animation_div');
+    ICON.classList.remove('loader-icon');
+    TEXT.classList.remove('loader-text');
 
     ANIMATION.classList.add('animation_div_stop');
     ICON.classList.add('loader-icon_stop');
     TEXT.classList.add('loader-text_stop');
     START.style.display = "block";
     STOP.style.display = "none";
+    ANIMATION.children[1].innerText = "TRADE";
     ANIMATION.children[2].innerText = "Do Nothing...";
+
+}
+
+$(function() {
+    console.log("coustomJS~");
+    const myStatus = document.querySelector("#userStatus")
+
+    if(myStatus.value === 'N'){
+        setNomal();
+    }else if(myStatus.value === 'Y'){
+        setStating();
+    }
+
+
 
     buttonManageMent();
 

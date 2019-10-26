@@ -3,22 +3,47 @@ import time
 
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+
+from bithumb.aps import Scheduler
 from bithumb.bithumb_api import *
 import math
 
 from django.views.decorators.csrf import csrf_exempt
-from .models import ProgramUser,TradeHistory
+from .models import *
+from cat.settings import MY_SECRET_KEY
+import bithumb.AESCipher as AESCipher
+import hashlib
+import time
+
+
+# mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
+#
+# encrypted_data = AESCipher(bytes(mykey)).encrypt(data)
+# print(encrypted_data)
+#
+# decrypted_data = AESCipher(bytes(mykey)).decrypt(encrypted_data)
+# print(decrypted_data.decode('utf-8'))
 
 tickers = get_main_tickers()
+scheduler = Scheduler()
+
+MAX_TIME = 8640
+
+def index(request):
+    return render(request, 'bithumb/index.html',{})
+
 
 def cat(request):
     data_list = now_data_list(tickers)
     return render(request, 'bithumb/cat.html',{'data':data_list})
 
 def trade(request):
-    users = ProgramUser.objects.all()
-
-    return render(request, 'bithumb/trading.html',{'data':users})
+    user = ProgramUser.objects.get(userId='shoon2430')
+    data = {
+            'userId' : user.userId,
+            'userStatus' : user.status
+             }
+    return render(request, 'bithumb/trading.html',{'data':data})
 
 def price(request):
     now_data = now_data_list(tickers)
@@ -32,51 +57,45 @@ def updown(request):
 
 @csrf_exempt
 def startTrading(request):
-    # print('=== startTrading ===')
-
-    MAX_TIME = 8640
-
+    print("========== startTrading ========== ")
+    cnt = 0
     userId = request.POST['userId']
     startDay = request.POST['startDay']
     endDay =  request.POST['endDay']
-
-    # print("=== REQUEST ===")
-    # print('userId : ', userId)
-    # print('startDay : ',startDay)
-    # print('endDay : ',endDay)
-    #
 
     publicKey = ''
     privateKey = ''
 
     try:
-        ProgramUser.setUserStatus(ProgramUser.objects.get(userId=userId))
+        USER = ProgramUser.objects.get(userId=userId)
+        print("========== GET ProgramUser ========== ")
 
-        testCnt = 1
-        while(True):
+        userId = USER.userId
+        mySchedulerId = USER.mySchedulerId
 
-            if testCnt == MAX_TIME :
-                break
+        myScheduler = TradeScheduler.objects.filter(schedulerId= mySchedulerId)
+        print("========== GET MY Scheduler ========== ")
 
-            #10초마다 실행
-            time.sleep(10)
+        if len(myScheduler) == 0 :
+            allScheduler = TradeScheduler.objects.all()
 
-            #user정보 가져오기
-            user = ProgramUser.objects.get(userId=userId)
-            status = user.status
+            newSchedulerId = str(userId)+str(len(allScheduler)+1)
 
-            # 종료버튼이 눌렸는지 확인
-            if status == 'N':
-                break
+            TradeScheduler.objects.create(userId= USER, schedulerId= newSchedulerId)
+            print("========== CREATE FIRST myScheduler ========== ")
 
-            #현재 가격등 분석
+            USER.mySchedulerId = newSchedulerId
+            print("========== SET NEW SchedulerId ========== ")
 
-            #매수/ 매도
+            scheduler.scheduler('cron', newSchedulerId, USER, _trading)
+            print("========== SET NEW Scheduler ========== ")
 
-            testCnt = testCnt + 1
+            USER.mySchedulerId = newSchedulerId
+            USER.status = 'Y'
+            USER.save()
+            print("START COMMIT!!")
 
     except ZeroDivisionError as e:
-        print(testCnt)
         print(e)
 
     print("startTrading END~~~")
@@ -85,8 +104,8 @@ def startTrading(request):
         'userId':userId,
         'publicKey':publicKey,
         'privateKey':privateKey,
-        'state':user.status,
-        'max':testCnt
+        'state':USER.status,
+        'max': cnt
     }
 
     return HttpResponse(json.dumps(data), content_type="application/json")
@@ -94,12 +113,34 @@ def startTrading(request):
 
 @csrf_exempt
 def stopTrading(request):
-    # print('=== stopTrading ===')
-
+    print('=== stopTrading ===')
     userId = request.POST['userId']
+    print('GET userId : ',userId)
 
     try:
-        ProgramUser.setUserStatus(ProgramUser.objects.get(userId=userId))
+        USER = ProgramUser.objects.get(userId=userId)
+        print("========== GET ProgramUser ========== ")
+
+        userId = USER.userId
+        print('=> GET userId : ', userId)
+
+        mySchedulerId = USER.mySchedulerId
+        print('=> GET mySchedulerId : ', mySchedulerId)
+
+        myScheduler = TradeScheduler.objects.get(schedulerId= mySchedulerId)
+        print('=> GET myScheduler : ', myScheduler)
+
+        if str(mySchedulerId) == str(myScheduler.schedulerId):
+            print("========== KILL Scheduler ========== ")
+            scheduler.kill_scheduler(str(mySchedulerId))
+
+            USER.mySchedulerId = ''
+            USER.status = 'N'
+            myScheduler.endTime = timezone.now()
+            myScheduler.save()
+            USER.save()
+            print("STOP COMMIT!!")
+
 
     except ZeroDivisionError as e:
         print(e)
@@ -112,6 +153,104 @@ def stopTrading(request):
 
 
 
+def set10minute():
+    if time.localtime().tm_min % 10 == 0 and time.localtime().tm_sec == 0:
+        return True
+    else:
+        return False
 
 
 
+def _trading( type, job_id, USER):
+    minute = 10
+
+    now = str(time.localtime().tm_hour) + ":"\
+        + str(time.localtime().tm_min) + ":"\
+        + str(time.localtime().tm_sec)
+
+    print("========== Scheduler Execute ==========")
+    print("=> TYPE[%s] Scheduler_ID[%s] : %s " % (type, job_id, now))
+
+    if set10minute() :
+        _sellCoin(USER, 'BTC')
+
+        if up_down_list(['BTC'])[0][2] == '상승장':
+            _buyCoin(USER, 'BTC')
+
+
+
+def _getWallet(userId):
+    print("===== GET WALLET =====")
+    chkWallet = Wallet.objects.filter(userId=userId)
+
+    if len(chkWallet) == 0 :
+        print("Have No Wallet!!")
+        return None
+
+    myWallet = Wallet.objects.get(userId=userId)
+    return myWallet
+
+
+def _buyCoin(USER, ticker):
+    print("===== BUY COIN =====")
+    myWallet = _getWallet(USER.userId)
+
+    myMonney = myWallet.monney
+    buyInfo = buyCalculatePrice(myMonney, ticker)
+
+    if buyInfo == 0 :
+        print("You don't but Coin")
+        return False
+
+    tradeCount = buyInfo['count']
+    tradeBalance = buyInfo['balance']
+
+    myWallet.tickerName = ticker
+    myWallet.tickerQuantity = tradeCount
+    myWallet.monney = tradeBalance
+
+    print("=====[ BUY ]=====")
+    print("=> tickerName [%s]"%(ticker))
+    print("=> tickerQuantity [%s]" % (tradeCount))
+    print("=> monney [%s]" % (tradeBalance))
+
+    myWallet.save()
+    #거래이력생성
+    _createTradeHistoty(USER, buyInfo)
+
+
+def _sellCoin(USER, ticker):
+    print("===== SELL COIN =====")
+    myWallet = _getWallet(USER.userId)
+
+    myMonney = myWallet.monney
+    myQuantity = myWallet.tickerQuantity
+
+    sellInfo =sellCalculatePrice(myQuantity, ticker)
+
+    if sellInfo == 0 :
+        print("You don't have Coin")
+        return False
+
+    myWallet.tickerName = None
+    myWallet.tickerQuantity = 0
+    myWallet.monney = myMonney + sellInfo['price']
+
+    print("=====[ SELL ]=====")
+    print("=> tickerName [%s]"%(ticker))
+    print("=> tickerQuantity [%s]" % (0))
+    print("=> monney [%s]" % (myMonney + sellInfo['price']))
+
+    myWallet.save()
+    #거래이력생성
+    _createTradeHistoty(USER, sellInfo)
+
+def _createTradeHistoty(USER, tradeInfo):
+    print("CREATE HISTORY USER_ID[%s]"%(USER.userId))
+    TradeHistory.objects.create(
+        userId= USER,
+        ticker=tradeInfo['ticker'],
+        tradeInfo=tradeInfo['info'],
+        tradeCount=tradeInfo['count'],
+        tradePrice=tradeInfo['price']
+    )

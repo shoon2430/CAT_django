@@ -3,9 +3,13 @@ import numpy as np
 import datetime
 import math
 from twilio.rest import Client
+from math import *
 
-CONNECT_KEY = ''
-SECRET_KEY  = ''
+
+CONNECT_KEY = "a3184c2a864c68fa6615b1a432ccace0"
+SECRET_KEY  = '01e110bc44c7682f2b428aad4d0ea427'
+
+
 
 '''
 빗썸 종목리스트 가져옴
@@ -110,7 +114,81 @@ def get_hpr(ticker):
 
         df['hpr'] = df['ror'].cumprod()
         df['dd'] = (df['hpr'].cummax() - df['hpr']) / df['hpr'].cummax() * 100
-        return df['hpr'][-2]
+
+
+        print(df['bull'])
+        print("MDD: ", df['dd'].max())
+        print("HPR: ", df['hpr'][-2])
+
+       # return df['hpr'][-2]
     except:
         return 1
 
+
+def sellCoin():
+    return
+
+def getMinPrice(ticker):
+    Min = 0.0001
+    price = pybithumb.get_current_price(ticker)
+    return price* Min
+
+def buyCalculatePrice(monney, ticker):
+
+    Min = 0.0001
+    MinRate = 10000
+    MinPrice = getMinPrice(ticker)
+
+    if MinPrice > monney:
+        return 0
+
+    tradeCount = floor(monney/MinPrice*Min*MinRate)/MinRate
+    tradePrice = floor(tradeCount * MinRate * MinPrice)
+    tradeBalance = monney - tradePrice
+
+    data = {
+        'info':'BUY',
+        'ticker':ticker,
+        'count':tradeCount,
+        'price':tradePrice,
+        'balance':tradeBalance
+    }
+    return data
+
+
+def sellCalculatePrice(count, ticker):
+
+    MinRate = 10000
+    MinPrice = getMinPrice(ticker)
+
+    if count <= 0:
+        return 0
+
+    tradePrice = floor(MinPrice*count*MinRate)
+    #수수료 0.025%
+    fees = (tradePrice/1000)*2.5
+    tradePrice = tradePrice - fees
+
+    data = {
+        'info':'SELL',
+        'ticker':ticker,
+        'count':count,
+        'price':tradePrice,
+    }
+    return data
+
+
+# a = buyCalculatePrice(100000000,'BTC')
+# print(a)
+#
+# a = sellCalculatePrice(9,'BTC')
+# print(a)
+
+# price = pybithumb.get_current_price('BTC')
+# print(floor(price))
+# monney = 400000
+# ticker = 'BTC'
+# print('==========')
+# a = buyCalculatePrice(floor(price), ticker)
+# print('==========')
+# a = buyCalculatePrice(monney, ticker)

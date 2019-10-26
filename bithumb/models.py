@@ -13,10 +13,11 @@ class ProgramUser(models.Model):
     userPhone = models.CharField(max_length=100)
     publicKey = models.CharField(max_length=32)
     privateKey = models.CharField(max_length=32)
+    mySchedulerId = models.CharField(max_length=50,null=True)
     status = models.CharField(max_length=5)
 
     def __str__(self):
-        return self.userId
+        return str(self.userId)
 
     def setUserStatus(self):
         print("setUserStatus")
@@ -31,11 +32,31 @@ class ProgramUser(models.Model):
             self.save()
 
 class TradeHistory(models.Model):
-    TradeUserId = models.ForeignKey(ProgramUser,null=True, on_delete=models.CASCADE)
+    userId = models.ForeignKey(ProgramUser,null=True, on_delete=models.CASCADE)
     ticker = models.CharField(max_length=50)
     tradeInfo = models.CharField(max_length=50)
+    tradeCount = models.IntegerField(default=0)
     tradePrice = models.IntegerField(default = 0)
     tradeTime = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return self.TradeUserId
+        return str(self.userId)
+
+class TradeScheduler(models.Model):
+    userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
+    schedulerId = models.CharField(max_length=50, blank=True)
+    startTime = models.DateTimeField(default=timezone.now)
+    endTime = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return str(self.schedulerId)
+
+
+class Wallet(models.Model):
+    userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
+    monney = models.IntegerField(default=0)
+    tickerName = models.CharField(max_length=50, null=True)
+    tickerQuantity = models.FloatField(default=0)
+
+    def __str__(self):
+        return str(self.userId)

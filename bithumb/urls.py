@@ -4,10 +4,10 @@ from . import views
 
 urlpatterns = [
     path('', views.index, name='index'),
+    path('login/', views.login, name='login'),
+    path('logout/', views.logout, name='logout'),
+    path('signup/', views.signup, name='signup'),
     path('cat/', views.cat, name='cat'),
-    path('cat/trade', views.trade, name='trade'),
-    path('cat/price', views.price, name='price'),
-    path('cat/updown', views.updown, name='updown'),
-    path('cat/trade/start', views.startTrading, name='startTrading'),
-    path('cat/trade/stop', views.stopTrading, name='stopTrading')
+    path('cat/start', views.startTrading, name='startTrading'),
+    path('cat/stop', views.stopTrading, name='stopTrading')
 ]

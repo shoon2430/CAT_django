@@ -16,6 +16,8 @@ const END_DAY = document.querySelector("#endDay");
 
 const START = document.querySelector("#startBtn");
 const STOP = document.querySelector("#stopBtn");
+const USER_ID = document.querySelector("#userId")
+const USER_NAME = document.querySelector("#userName")
 
 const changeTickersPrice = (resultData) => {
     idx = 0;
@@ -82,10 +84,10 @@ const getUpDownData = () =>{
 const startClick = () =>{
     console.log("startClick!!");
 
-    const sendData =  { userId   : 'shoon2430',
-                        userName : '정승훈',
-                        startDay : START_DAY.value,
-                        endDay   : END_DAY.value
+    const sendData =  { 'userId'   : USER_ID.value,
+                        'userName' : USER_NAME.value,
+                        'startDay' : START_DAY.value,
+                        'endDay'   : END_DAY.value
                         };
 
     setStating();
@@ -104,7 +106,8 @@ const startClick = () =>{
 
 
 const stopClick = () =>{
-    const sendData =  {userId: 'shoon2430', userName: '정승훈'};
+    const sendData =  { 'userId': USER_ID.value,
+                        'userName': USER_ID.value};
 
     console.log("stopClick!!");
 

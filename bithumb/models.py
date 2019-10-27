@@ -35,7 +35,7 @@ class TradeHistory(models.Model):
     userId = models.ForeignKey(ProgramUser,null=True, on_delete=models.CASCADE)
     ticker = models.CharField(max_length=50)
     tradeInfo = models.CharField(max_length=50)
-    tradeCount = models.IntegerField(default=0)
+    tradeCount = models.FloatField(default=0)
     tradePrice = models.IntegerField(default = 0)
     tradeTime = models.DateTimeField(default=timezone.now)
 

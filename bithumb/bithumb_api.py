@@ -6,9 +6,6 @@ from twilio.rest import Client
 from math import *
 
 
-CONNECT_KEY = "a3184c2a864c68fa6615b1a432ccace0"
-SECRET_KEY  = '01e110bc44c7682f2b428aad4d0ea427'
-
 
 
 '''
@@ -124,9 +121,6 @@ def get_hpr(ticker):
     except:
         return 1
 
-
-def sellCoin():
-    return
 
 def getMinPrice(ticker):
     Min = 0.0001

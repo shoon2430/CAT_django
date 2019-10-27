@@ -1,59 +1,127 @@
 import json
-import time
-
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
+from django.shortcuts import get_object_or_404
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth import login as django_login, logout as django_logout, authenticate
+from django.urls import  reverse
 
-from bithumb.aps import Scheduler
+
+from bithumb.apsScheduler import Scheduler
 from bithumb.bithumb_api import *
 import math
 
-from django.views.decorators.csrf import csrf_exempt
-from .models import *
+
+from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet
 from cat.settings import MY_SECRET_KEY
-import bithumb.AESCipher as AESCipher
+from bithumb.AESCipher import AESCIPER
 import hashlib
 import time
+from django.conf import settings
+from django.contrib.sessions.middleware import  SessionMiddleware
 
 
-# mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
-#
-# encrypted_data = AESCipher(bytes(mykey)).encrypt(data)
-# print(encrypted_data)
-#
-# decrypted_data = AESCipher(bytes(mykey)).decrypt(encrypted_data)
-# print(decrypted_data.decode('utf-8'))
 
+mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
 tickers = get_main_tickers()
 scheduler = Scheduler()
 
 MAX_TIME = 8640
 
 def index(request):
-    return render(request, 'bithumb/index.html',{})
+    return redirect(reverse('login'))
+
+@csrf_exempt
+def login(request):
+    print("===== LOGIN [Request : %s]====="%(request))
+    if request.POST :
+
+        userId = request.POST['userId']
+        userPassword = request.POST['userPassword']
+        userChk = ProgramUser.objects.filter(userId=userId)
+
+        if userChk:
+            USER = get_object_or_404(ProgramUser,userId=userId)
+
+            cryptoPass = USER.userPassword
+            cryptoPass = cryptoPass.encode('utf-8')
+
+            decrypted_pass = AESCIPER(bytes(mykey)).decrypt(cryptoPass)
+            decrypted_pass = decrypted_pass.decode('utf-8')
+
+            if str(decrypted_pass) == str(userPassword) :
+                request.session['user_id'] = USER.userId
+                request.session['user_name'] = USER.userName
+                request.session['user_status'] = USER.status
+                return redirect(reverse('cat'))
+            else :
+                data = {'error': 'Please check your ID or Password'}
+                return render(request, 'bithumb/login.html', data)
+
+        else :
+            data = {'error': 'Please check your ID or Password'}
+            return render(request, 'bithumb/login.html', data)
+
+    return render(request, 'bithumb/login.html')
+
+def logout(request):
+
+    del request.session['user_id']
+    del request.session['user_name']
+    del request.session['user_status']
+
+    return redirect(reverse('login'))
+
+@csrf_exempt
+def signup(request):
+    print("===== SIGNUP [Request : %s]=====" % (request))
+    if request.POST :
+
+        Id = request.POST['userId']
+        Pass = request.POST['userPassword']
+        Name = request.POST['userName']
+        phone = request.POST['phone']
+
+        encrypted_pass = AESCIPER(bytes(mykey)).encrypt(Pass)
+        encrypted_pass = str(encrypted_pass)[2:-1]
+
+        ProgramUser.objects.create(
+            userId= Id,
+            userPassword= encrypted_pass,
+            userName= Name,
+            userPhone= phone,
+            status='N'
+        )
+        print("USER_ID[%s] CREATE!! " % (Id))
+
+        user = ProgramUser.objects.get(userId= Id)
+        Wallet.objects.create(
+            userId = user,
+            monney = 10000000
+        )
+        print("USER_ID[%s] WALLET CREATE!! "%(Id))
+
+        return redirect(reverse('login'))
+
+    else :
+        return render(request, 'bithumb/signup.html', {})
 
 
 def cat(request):
-    data_list = now_data_list(tickers)
-    return render(request, 'bithumb/cat.html',{'data':data_list})
+    print("START CAT")
+    print(request.session.get('user_id'))
+    print(request.session.get('user_name'))
+    print(request.session.get('user_status'))
 
-def trade(request):
-    user = ProgramUser.objects.get(userId='shoon2430')
     data = {
-            'userId' : user.userId,
-            'userStatus' : user.status
+            'userId' : request.session.get('user_id'),
+            'user_name': request.session.get('user_name'),
+            'userStatus' : request.session.get('user_status'),
              }
     return render(request, 'bithumb/trading.html',{'data':data})
 
-def price(request):
-    now_data = now_data_list(tickers)
-    return HttpResponse(json.dumps(now_data), content_type="application/json")
 
-
-def updown(request):
-    upDown_data = up_down_list(tickers)
-
-    return HttpResponse(json.dumps(upDown_data), content_type="application/json")
 
 @csrf_exempt
 def startTrading(request):

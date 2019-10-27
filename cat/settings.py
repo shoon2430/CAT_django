@@ -50,6 +50,8 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+
+
 ROOT_URLCONF = 'cat.urls'
 
 TEMPLATES = [
@@ -121,4 +123,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
-MY_SECRET_KEY = "CHANGE"
+MY_SECRET_KEY = "HELLO~"

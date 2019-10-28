@@ -53,7 +53,6 @@ def login(request):
             if str(decrypted_pass) == str(userPassword) :
                 request.session['user_id'] = USER.userId
                 request.session['user_name'] = USER.userName
-                request.session['user_status'] = USER.status
                 return redirect(reverse('cat'))
             else :
                 data = {'error': 'Please check your ID or Password'}
@@ -110,14 +109,15 @@ def signup(request):
 
 def cat(request):
     print("START CAT")
-    print(request.session.get('user_id'))
-    print(request.session.get('user_name'))
-    print(request.session.get('user_status'))
+    userId = request.session.get('user_id')
+    userName = request.session.get('user_name')
+
+    user = ProgramUser.objects.get(userId=userId)
 
     data = {
-            'userId' : request.session.get('user_id'),
-            'user_name': request.session.get('user_name'),
-            'userStatus' : request.session.get('user_status'),
+            'userId' : userId,
+            'user_name': userName,
+            'userStatus' : user.status,
              }
     return render(request, 'bithumb/trading.html',{'data':data})
 

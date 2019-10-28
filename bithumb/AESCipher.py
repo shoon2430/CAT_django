@@ -28,27 +28,6 @@ class AESCIPER:
         return unpad(cipher.decrypt( enc[16:] ))
 
 
-data = '1234'
-
-
-MY_SECRET_KEY = "HELLO~"
-
-mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
-
-
-encrypted_data = AESCIPER(bytes(mykey)).encrypt(data)
-encrypted_data
-print(encrypted_data)
-
-R1 = b'tC+nATWsEKpUMEFiXlhhxJFGe15DbHKi9ojYr6sjaQc='
-print("R1 : ",R1)
-R2 = str(R1)[2:-1]
-print("R2 : ",R2)
-R3 = R2.encode('utf-8')
-print("R3 : ",R3)
-
-decrypted_data = AESCIPER(bytes(mykey)).decrypt(R3)
-print(decrypted_data.decode('utf-8'))
 
 # R = b'xKByp4QA3EDJhgkFDHesC1s14JkaqdDr/iMAYi3v3dY='
 #

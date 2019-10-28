@@ -93,7 +93,7 @@ const startClick = () =>{
     setStating();
 
     $.ajax({
-        url: '/cat/trade/start',
+        url: '/cat/start',
         data: sendData,
         method: 'POST',
         dataType: 'json',
@@ -115,7 +115,7 @@ const stopClick = () =>{
     ANIMATION.children[2].innerText = "Please Wait...";
 
     $.ajax({
-        url: '/cat/trade/stop',
+        url: '/cat/stop',
         data: sendData,
         method: 'POST',
         dataType: 'json',

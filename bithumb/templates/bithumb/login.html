@@ -29,7 +29,7 @@
         <!-- Login Form -->
         <form action="{%url 'login' %}" method="POST" onsubmit="return loginCheck()">
           <input type="text" id="userId" class="fadeIn second" name="userId" placeholder="ID">
-          <input type="text" id="userPassword" class="fadeIn third" name="userPassword" placeholder="Password">
+          <input type="password" id="userPassword" class="fadeIn third" name="userPassword" placeholder="Password">
           <input type="submit" id="loginBtn" class="fadeIn fourth" value="Log In">
 
             {% if error %}

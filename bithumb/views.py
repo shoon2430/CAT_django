@@ -122,6 +122,19 @@ def cat(request):
     return render(request, 'bithumb/trading.html',{'data':data})
 
 
+def test(request):
+    print("START TEST")
+    userId = request.session.get('user_id')
+    userName = request.session.get('user_name')
+
+    user = ProgramUser.objects.get(userId=userId)
+
+    data = {
+            'userId' : userId,
+            'user_name': userName,
+            'userStatus' : user.status,
+             }
+    return render(request, 'bithumb/test.html',{'data':data})
 
 @csrf_exempt
 def startTrading(request):
@@ -227,6 +240,13 @@ def set10minute():
     else:
         return False
 
+def set10seconds():
+    if time.localtime().tm_sec % 60 == 0 :
+        return True
+    else:
+        return False
+
+
 
 
 def _trading( type, job_id, USER):
@@ -239,11 +259,13 @@ def _trading( type, job_id, USER):
     print("========== Scheduler Execute ==========")
     print("=> TYPE[%s] Scheduler_ID[%s] : %s " % (type, job_id, now))
 
-    if set10minute() :
+    if set10seconds() :
+        print(up_down_list(['BTC'])[0][2])
         _sellCoin(USER, 'BTC')
+        _buyCoin(USER, 'BTC')
 
-        if up_down_list(['BTC'])[0][2] == '상승장':
-            _buyCoin(USER, 'BTC')
+        # if up_down_list(['BTC'])[0][2] == '상승장':
+        #     _buyCoin(USER, 'BTC')
 
 
 

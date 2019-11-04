@@ -14,11 +14,20 @@
       <link href="/static/css/making_money.css" rel="stylesheet">
 
       <link href="/static/css/custom.css" rel="stylesheet">
+      <style>
+          .container { padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto; }
+          @media (min-width: 768px) { .container { width: 750px; } }
+          @media (min-width: 992px) { .container { width: 850px; } }
+          @media (min-width: 1200px) { .container { width: 850px; } }
+          .container-fluid { padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto; }
+
+
+      </style>
   </head>
   <body>
 
     <nav class="navbar navbar-expand navbar-dark bg-dark">
-      <image src="/static/image/logo.png"></image> <a class="navbar-brand" href="#">CAT</a>
+      <image src="/static/image/logo_small.png"></image> <a class="navbar-brand" href="#">CAT</a>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
@@ -48,80 +57,7 @@
 
         <div class="container">
             <div class="row">
-                <div class="col-sm-5 ">
-                    <div class="row" style="padding:5px">
-                         <div class="col-sm-12">
-                             <div class="setRight">
-                                <div class="setLeft">
-                                     <select class="form-control text-center">
-                                        <option value="1">최근 5일 평균 상승폭</option>
-                                        <option value="2">최근 10일 평균 상승폭</option>
-                                        <option value="2">최근 20일 평균 상승폭</option>
-                                    </select>
-                                </div>
-                                <div class="setLeft" style="width:100px">
-                                    <button class="btn btn-primary" id="searchBtn" style="width:100%">Search</button>
-                                </div>
-                             </div>
-                         </div>
-                    </div>
-                    <div style="padding:5px">
-                        <table class="table table-hover">
-                            <colgroup>
-                                <col width="20%">
-                                <col width="20%">
-                                <col width="20%">
-                                <col width="20%">
-                                <col width="20%">
-                            </colgroup>
-                        <thead>
-                        <tr>
-                            <th>ticker</th>
-                            <th>price</th>
-                            <th>rating</th>
-                            <th>T4</th>
-                            <th>T5</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-                            <tr><td>111</td><td>222</td><td>222</td><td>222</td><td>222</td></tr>
-
-                        </tbody>
-
-                        </table>
-                    </div>
-                </div>
-                <div class="col-sm-7" style="">
-                        <div class="row" style="padding:5px;">
-                                    <div class="col-sm-4">
-                                        <div class="input-group" style="width:90px">
-                                            <select  class="form-control text-center">
-                                                <option value="BTC">BTC</option>
-                                                <option value="ETH">ETH</option>
-                                                <option value="REP">REP</option>
-                                            </select>
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-8">
-                                        <div style="float:right">
-                                            <div style="width:160px; float:left">
-                                                <input class="text-center" id="startDay" placeholder="startDay"/>
-                                             </div>
-                                             <div style="width:160px; float:left">
-                                                <input class="text-center" id="endDay" placeholder="endDay"/>
-                                             </div>
-                                        </div>
-                                    </div>
-                        </div>
+                <div class="col-sm-12" style="">
                         <div class="row" style="padding:5px;">
                             <div class="col-sm-12">
                                 <div id="animation">
@@ -132,20 +68,39 @@
                             </div>
                         </div>
                         <div class="row" style="padding:5px;">
-                            <div class="col-sm-8 setLeft">
-                                    <label class="text-center setLeft" for="myMoney" style="width:15%">Money:</label>
+                            <div class="col-sm-8 setLeft" style="padding:5px;">
+                                    <label class="text-center setLeft" for="myMoney" style="padding:5px; width:15%">Money:</label>
                                     <input type="text" class="form-control setLeft" id="myMoney" style="width:35%">
-                                    <label class="text-center setLeft" for="myCoin" style="width:15%">Coin:</label>
+                                    <label class="text-center setLeft" for="myCoin" style="padding:5px; width:15%">Coin:</label>
                                     <input type="text" class="form-control setLeft" id="myCoin"style="width:35%;">
                             </div>
-                            <div class="col-sm-4">
+                            <div class="col-sm-4" style="padding:5px;">
                                 <div>
                                 <button class="btn btn-primary" id="startBtn" style="width:100%">START</button>
                                 <button class="btn btn-danger" id="stopBtn" style="width:100%; display:none">STOP</button>
                                     </div>
                             </div>
                         </div>
+                        <div id="programSetting">
+                            <div class="row" style="padding:5px;">
+                                <div class="col-sm-2" style="padding:5px;">
+                                    <div class="input-group">
+                                        <select class="form-control text-center" style="text-align:center">
+                                            <option value="BTC">BTC</option>
+                                            <option value="ETH">ETH</option>
+                                            <option value="REP">REP</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-sm-5" style="padding:5px;">
+                                        <input class="text-center" id="startDay" placeholder="startDay" />
+                                </div>
+                                <div class="col-sm-5"style="padding:5px;">
+                                        <input class="text-center" id="endDay" placeholder="endDay" />
+                                </div>
 
+                            </div>
+                        </div>
 
                 </div>
             </div>
@@ -167,6 +122,11 @@
 
     <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
 
-    <script src="/static/js/custom.js?Ver=11"></script>
+    <script src="/static/js/custom.js"></script>
+
+    <script>
+
+
+    </script>
   </body>
 </html>

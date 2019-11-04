@@ -241,7 +241,9 @@ def set10minute():
         return False
 
 def set10seconds():
-    if time.localtime().tm_sec % 60 == 0 :
+    t = time.localtime().tm_sec
+
+    if t % 60 >= 0 and t < 5 :
         return True
     else:
         return False

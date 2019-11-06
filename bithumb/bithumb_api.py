@@ -77,21 +77,17 @@ def get_target_price(ticker):
 # 매도호가 : 팔려고하는 최소가격
 
 
-def send_SMS_message(to_number, contents):
-    account_sid = ''
-    auth_token = ''
-    from_number = '+12064890783'
-    client = Client(account_sid, auth_token)
+def send_SMS_message(to_number, contents, account_sid, auth_token, from_number):
 
+    client = Client(account_sid, auth_token)
     message = client.messages \
         .create(
-        body= contents,
-        from_= from_number,
-        to= to_number  #'+821026841940'
+        body=contents,
+        from_=from_number,
+        to=to_number
     )
+    print(message.sid)
     print('문자메세지가 발송되었습니다. from {0} to {1} message {2} '.format(to_number,from_number,contents))
-    print('=> ',message.sid)
-
 
 
 def get_hpr(ticker):
@@ -170,19 +166,3 @@ def sellCalculatePrice(count, ticker):
         'price':tradePrice,
     }
     return data
-
-
-# a = buyCalculatePrice(100000000,'BTC')
-# print(a)
-#
-# a = sellCalculatePrice(9,'BTC')
-# print(a)
-
-# price = pybithumb.get_current_price('BTC')
-# print(floor(price))
-# monney = 400000
-# ticker = 'BTC'
-# print('==========')
-# a = buyCalculatePrice(floor(price), ticker)
-# print('==========')
-# a = buyCalculatePrice(monney, ticker)

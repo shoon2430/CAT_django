@@ -339,6 +339,7 @@ def _sellCoin(USER, ticker):
 
 def _createTradeHistoty(USER, tradeInfo):
     print("CREATE HISTORY USER_ID[%s]"%(USER.userId))
+
     TradeHistory.objects.create(
         userId= USER,
         ticker=tradeInfo['ticker'],
@@ -346,3 +347,17 @@ def _createTradeHistoty(USER, tradeInfo):
         tradeCount=tradeInfo['count'],
         tradePrice=tradeInfo['price']
     )
+
+    if USER.publicKey != "":
+        comment=""
+        if tradeInfo['info'] == 'SELL' :
+            comment = '판매'
+        elif tradeInfo['info'] == 'BUY' :
+            comment = '구매'
+
+        messageText = "["+str(USER.userId)+"]님이 "+str(tradeInfo['ticker'])+"를 "+str(tradeInfo['price'])+"에 "+str(comment)+"하였습니다."
+        send_SMS_message(account_sid=USER.publicKey,
+                         auth_token=USER.privateKey,
+                         from_number=USER.userPhone,
+                         to_number='+8201026841940',
+                         contents=messageText)

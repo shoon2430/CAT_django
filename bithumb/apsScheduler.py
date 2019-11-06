@@ -29,9 +29,10 @@ class Scheduler:
         elif type == 'cron':
             self.sched.add_job(function, type,
                                                  #day_of_week='mon-fri',
-                                                 #hour='0-23',
-                                                 second='*/5',
+                                                 hour='1',
+                                                 second='1',
                                                  id=job_id, args=(type, job_id, USER))
+
 
 
 

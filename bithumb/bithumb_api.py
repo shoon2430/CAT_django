@@ -61,10 +61,15 @@ def now_data_list(tickers):
 
     return result
 
+def get_now_price(ticker):
+    price = pybithumb.get_current_price(ticker)
+    if (price > 1000):
+        price = math.trunc(price)
+    return price
+
 # 목표가격 가져오기
 def get_target_price(ticker):
     df = pybithumb.get_ohlcv(ticker)
-    # print(df.tail())
     yesterday = df.iloc[-2]
 
     today_open = yesterday['close']
@@ -73,21 +78,18 @@ def get_target_price(ticker):
     target = today_open + (yesterday_high - yesterday_low) * 0.5
     return target
 
+
 # 매수호가 : 사려고하는 최대가격
 # 매도호가 : 팔려고하는 최소가격
 
 
-def send_SMS_message(to_number, contents, account_sid, auth_token, from_number):
+# 5일간 이동평균
+def get_yesterday_ma5(ticker):
+     df = pybithumb.get_ohlcv(ticker)
+     close = df['close']
+     ma = close.rolling(window=5).mean()
+     return ma[-2]
 
-    client = Client(account_sid, auth_token)
-    message = client.messages \
-        .create(
-        body=contents,
-        from_=from_number,
-        to=to_number
-    )
-    print(message.sid)
-    print('문자메세지가 발송되었습니다. from {0} to {1} message {2} '.format(to_number,from_number,contents))
 
 
 def get_hpr(ticker):
@@ -116,6 +118,8 @@ def get_hpr(ticker):
        # return df['hpr'][-2]
     except:
         return 1
+
+
 
 
 def getMinPrice(ticker):
@@ -166,3 +170,18 @@ def sellCalculatePrice(count, ticker):
         'price':tradePrice,
     }
     return data
+
+
+def send_SMS_message(to_number, contents, account_sid, auth_token, from_number):
+
+    client = Client(account_sid, auth_token)
+    message = client.messages \
+        .create(
+        body=contents,
+        from_=from_number,
+        to=to_number
+    )
+    print(message.sid)
+    print('문자메세지가 발송되었습니다. from {0} to {1} message {2} '.format(to_number,from_number,contents))
+
+

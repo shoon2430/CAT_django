@@ -252,8 +252,6 @@ def set10seconds():
 
 
 def _trading( type, job_id, USER):
-    minute = 10
-
     now = str(time.localtime().tm_hour) + ":"\
         + str(time.localtime().tm_min) + ":"\
         + str(time.localtime().tm_sec)
@@ -261,14 +259,26 @@ def _trading( type, job_id, USER):
     print("========== Scheduler Execute ==========")
     print("=> TYPE[%s] Scheduler_ID[%s] : %s " % (type, job_id, now))
 
-    if set10seconds() :
-        print(up_down_list(['BTC'])[0][2])
-        _sellCoin(USER, 'BTC')
-        _buyCoin(USER, 'BTC')
+    ticker = 'BTC'
+    ma5 = get_yesterday_ma5(ticker)
+    target_price = get_target_price(ticker)
+    _sellCoin(USER, ticker)
 
-        # if up_down_list(['BTC'])[0][2] == '상승장':
-        #     _buyCoin(USER, 'BTC')
+    current_price = get_now_price(ticker)
+    print('ma5 : '+str(ma5))
+    print('current_price : '+str(current_price))
+    print('target_price : '+str(target_price))
 
+    if (current_price > target_price) and (current_price > ma5):
+        _buyCoin(USER, ticker)
+    else :
+        print("dont BUY")
+        messageText = "dont`t BUY(ma5:"+str(ma5)+", current_price:"+str(current_price)+", target_price:"+str(target_price)+")"
+        send_SMS_message(account_sid=str(str(USER.publicKey) + '26'),
+                         auth_token=str(USER.privateKey),
+                         from_number=str(USER.userPhone),
+                         to_number='+8201026841940',
+                         contents=messageText)
 
 
 def _getWallet(userId):
@@ -340,6 +350,7 @@ def _sellCoin(USER, ticker):
 def _createTradeHistoty(USER, tradeInfo):
     print("CREATE HISTORY USER_ID[%s]"%(USER.userId))
 
+
     TradeHistory.objects.create(
         userId= USER,
         ticker=tradeInfo['ticker'],
@@ -349,15 +360,16 @@ def _createTradeHistoty(USER, tradeInfo):
     )
 
     if USER.publicKey != "":
+        print('start!!')
         comment=""
         if tradeInfo['info'] == 'SELL' :
             comment = '판매'
         elif tradeInfo['info'] == 'BUY' :
             comment = '구매'
 
-        messageText = "["+str(USER.userId)+"]님이 "+str(tradeInfo['ticker'])+"를 "+str(tradeInfo['price'])+"에 "+str(comment)+"하였습니다."
-        send_SMS_message(account_sid=USER.publicKey,
-                         auth_token=USER.privateKey,
-                         from_number=USER.userPhone,
+        messageText = "["+str(USER.userId)+"]님이 "+str(tradeInfo['ticker'])+"를 "+str(tradeInfo['price'])+"원 에 "+str(tradeInfo['count'])+"개 "+str(comment)+"하였습니다."
+        send_SMS_message(account_sid=str(str(USER.publicKey)+'26'),
+                         auth_token=str(USER.privateKey),
+                         from_number=str(USER.userPhone),
                          to_number='+8201026841940',
                          contents=messageText)

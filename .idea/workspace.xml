@@ -59,7 +59,7 @@
       </list>
     </option>
   </component>
-  <component name="RunManager" selected="Python.bithumb_api">
+  <component name="RunManager" selected="Python.tests">
     <configuration name="AESCipher" type="PythonConfigurationType" factoryName="Python" temporary="true">
       <module name="catProject" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -125,8 +125,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.bithumb_api" />
         <item itemvalue="Python.tests" />
+        <item itemvalue="Python.bithumb_api" />
         <item itemvalue="Python.AESCipher" />
       </list>
     </recent_temporary>

@@ -27,26 +27,3 @@ class AESCIPER:
         cipher = AES.new(self.key, AES.MODE_CBC, iv )
         return unpad(cipher.decrypt( enc[16:] ))
 
-
-
-# R = b'xKByp4QA3EDJhgkFDHesC1s14JkaqdDr/iMAYi3v3dY='
-#
-# test = "bNQq5S/3cmFgD7IAG4j9gPVwIkE59xsD8DzZa+YmxFY="
-# imsi = b'MaKhNN6ELmowWNKjw8ULnjVFLmD60yzngbJbv0qP5FI='
-#
-# P = str(R)[2:-1]
-# T = test.encode('utf-8')
-# print("{P : ",P)
-# print(T)
-# P = P.encode('utf-8')
-
-# decrypted_data = AESCIPER(bytes(key)).decrypt(encrypted_data)
-# decrypted_data.decode('utf-8')
-# print(decrypted_data.decode('utf-8'))
-# print(decrypted_data.decode('utf-8'))
-
-# decrypted_data = AESCIPER(bytes(key)).decrypt(P)
-# print(decrypted_data.decode('utf-8'))
-#
-# decrypted_data = AESCIPER(bytes(key)).decrypt(imsi)
-# print(decrypted_data.decode('utf-8'))

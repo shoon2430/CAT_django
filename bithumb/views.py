@@ -13,7 +13,7 @@ from bithumb.bithumb_api import *
 import math
 
 
-from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet
+from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet, APILicense
 from cat.settings import MY_SECRET_KEY
 from bithumb.AESCipher import AESCIPER
 import hashlib
@@ -27,7 +27,17 @@ mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
 tickers = get_main_tickers()
 scheduler = Scheduler()
 
-MAX_TIME = 8640
+def _setCrypto(data):
+    crypto_data = AESCIPER(bytes(mykey)).encrypt(data)
+    crypto_data = str(crypto_data)[2:-1]
+    return crypto_data
+
+def _setDeCrypto(data):
+    deCrypto_data = data.encode('utf-8')
+    deCrypto_data = AESCIPER(bytes(mykey)).decrypt(deCrypto_data)
+    deCrypto_data = deCrypto_data.decode('utf-8')
+    return str(deCrypto_data)
+
 
 def index(request):
     return redirect(reverse('login'))
@@ -43,14 +53,9 @@ def login(request):
 
         if userChk:
             USER = get_object_or_404(ProgramUser,userId=userId)
+            PASS = USER.userPassword
 
-            cryptoPass = USER.userPassword
-            cryptoPass = cryptoPass.encode('utf-8')
-
-            decrypted_pass = AESCIPER(bytes(mykey)).decrypt(cryptoPass)
-            decrypted_pass = decrypted_pass.decode('utf-8')
-
-            if str(decrypted_pass) == str(userPassword) :
+            if str(_setDeCrypto(PASS)) == str(userPassword) :
                 request.session['user_id'] = USER.userId
                 request.session['user_name'] = USER.userName
                 return redirect(reverse('cat'))
@@ -65,10 +70,9 @@ def login(request):
     return render(request, 'bithumb/login.html')
 
 def logout(request):
-
+    print('LOGOUT~!!')
     del request.session['user_id']
     del request.session['user_name']
-    del request.session['user_status']
 
     return redirect(reverse('login'))
 
@@ -82,14 +86,11 @@ def signup(request):
         Name = request.POST['userName']
         phone = request.POST['phone']
 
-        encrypted_pass = AESCIPER(bytes(mykey)).encrypt(Pass)
-        encrypted_pass = str(encrypted_pass)[2:-1]
-
         ProgramUser.objects.create(
             userId= Id,
-            userPassword= encrypted_pass,
+            userPassword= _setCrypto(Pass),
             userName= Name,
-            userPhone= phone,
+            userPhone= _setCrypto(phone),
             status='N'
         )
         print("USER_ID[%s] CREATE!! " % (Id))
@@ -106,35 +107,94 @@ def signup(request):
     else :
         return render(request, 'bithumb/signup.html', {})
 
-
 def cat(request):
     print("START CAT")
-    userId = request.session.get('user_id')
-    userName = request.session.get('user_name')
+    try:
+        userId = request.session.get('user_id')
+        userName = request.session.get('user_name')
 
-    user = ProgramUser.objects.get(userId=userId)
+        user = ProgramUser.objects.get(userId=userId)
 
-    data = {
-            'userId' : userId,
-            'user_name': userName,
-            'userStatus' : user.status,
-             }
-    return render(request, 'bithumb/trading.html',{'data':data})
+        data = {
+                'userId' : userId,
+                'user_name': userName,
+                'userStatus' : user.status,
+                 }
+        return render(request, 'bithumb/trading.html',{'data':data})
+    except ZeroDivisionError as e:
+        print(e)
+        return redirect(reverse('login'))
 
 
-def test(request):
-    print("START TEST")
-    userId = request.session.get('user_id')
-    userName = request.session.get('user_name')
+def userSetting(request):
+    print("===== userSetting =====")
+    try:
+        userId = request.session.get('user_id')
+        userName = request.session.get('user_name')
 
-    user = ProgramUser.objects.get(userId=userId)
+        USER_CHK = ProgramUser.objects.filter(userId=userId)
 
-    data = {
-            'userId' : userId,
-            'user_name': userName,
-            'userStatus' : user.status,
-             }
-    return render(request, 'bithumb/test.html',{'data':data})
+        if USER_CHK:
+            USER = ProgramUser.objects.get(userId=userId)
+
+            MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
+
+            if MY_LICENSE_CHK:
+                MY_LICENSE = APILicense.objects.get(userId=USER)
+
+                data ={
+                    'userId' : userId,
+                    'bitPublicKey' : _setDeCrypto(MY_LICENSE.bit_publicKey) ,
+                    'bitPrivateKey': _setDeCrypto(MY_LICENSE.bit_privateKey),
+                    'twPublicKey': _setDeCrypto(MY_LICENSE.tw_publicKey),
+                    'twPrivateKey': _setDeCrypto(MY_LICENSE.tw_privateKey),
+                    'twNumber': _setDeCrypto(MY_LICENSE.tw_number),
+                }
+            else:
+                data={
+                    'userId' :userId
+                }
+
+        return render(request, 'bithumb/userSetting.html', {'data': data})
+    except ZeroDivisionError as e:
+        print(e)
+        return redirect(reverse('login'))
+
+@csrf_exempt
+def saveUserSetting(request):
+    print("===== saveUserSetting =====")
+
+    userId = request.POST['userId']
+    bitPublicKey = request.POST['bitPublicKey']
+    bitPrivateKey = request.POST['bitPrivateKey']
+    twPublicKey = request.POST['twPublicKey']
+    twPrivateKey = request.POST['twPrivateKey']
+    twNumber = request.POST['twNumber']
+
+    USER = ProgramUser.objects.get(userId=userId)
+    MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
+
+    if MY_LICENSE_CHK:
+        MY_LICENSE = APILicense.objects.get(userId=USER)
+        MY_LICENSE.bit_publicKey = _setCrypto(bitPublicKey)
+        MY_LICENSE.bit_privateKey = _setCrypto(bitPrivateKey)
+        MY_LICENSE.tw_publicKey = _setCrypto(twPublicKey)
+        MY_LICENSE.tw_privateKey = _setCrypto(twPrivateKey)
+        MY_LICENSE.tw_number = _setCrypto(twNumber)
+        MY_LICENSE.save()
+
+    else:
+        APILicense.objects.create(
+            userId=USER,
+            bit_publicKey=_setCrypto(bitPublicKey),
+            bit_privateKey=_setCrypto(bitPrivateKey),
+            tw_publicKey=_setCrypto(twPublicKey),
+            tw_privateKey=_setCrypto(twPrivateKey),
+            tw_number=_setCrypto(twNumber)
+        )
+
+    return redirect(reverse('cat'))
+
 
 @csrf_exempt
 def startTrading(request):
@@ -232,25 +292,6 @@ def stopTrading(request):
     print(data)
     return HttpResponse(json.dumps(data), content_type="application/json")
 
-
-
-def set10minute():
-    if time.localtime().tm_min % 10 == 0 and time.localtime().tm_sec == 0:
-        return True
-    else:
-        return False
-
-def set10seconds():
-    t = time.localtime().tm_sec
-
-    if t % 60 >= 0 and t < 5 :
-        return True
-    else:
-        return False
-
-
-
-
 def _trading( type, job_id, USER):
     now = str(time.localtime().tm_hour) + ":"\
         + str(time.localtime().tm_min) + ":"\
@@ -265,20 +306,26 @@ def _trading( type, job_id, USER):
     _sellCoin(USER, ticker)
 
     current_price = get_now_price(ticker)
-    print('ma5 : '+str(ma5))
-    print('current_price : '+str(current_price))
-    print('target_price : '+str(target_price))
+    print('MA5 : '+str(ma5))
+    print('C.P : '+str(current_price))
+    print('T.P : '+str(target_price))
 
     if (current_price > target_price) and (current_price > ma5):
         _buyCoin(USER, ticker)
     else :
         print("dont BUY")
-        messageText = "dont`t BUY(ma5:"+str(ma5)+", current_price:"+str(current_price)+", target_price:"+str(target_price)+")"
-        send_SMS_message(account_sid=str(str(USER.publicKey) + '26'),
-                         auth_token=str(USER.privateKey),
-                         from_number=str(USER.userPhone),
-                         to_number='+8201026841940',
-                         contents=messageText)
+
+        MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
+        if MY_LICENSE_CHK:
+            MY_LICENSE = APILicense.objects.get(userId=USER)
+            print('SEND MASSGE TEXT CREATE')
+            messageText = "Dont`t BUY"
+            print(messageText)
+            send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                             auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                             from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                             to_number=str('+82')+_setDeCrypto(USER.userPhone),
+                             contents=messageText)
 
 
 def _getWallet(userId):
@@ -349,8 +396,6 @@ def _sellCoin(USER, ticker):
 
 def _createTradeHistoty(USER, tradeInfo):
     print("CREATE HISTORY USER_ID[%s]"%(USER.userId))
-
-
     TradeHistory.objects.create(
         userId= USER,
         ticker=tradeInfo['ticker'],
@@ -359,17 +404,24 @@ def _createTradeHistoty(USER, tradeInfo):
         tradePrice=tradeInfo['price']
     )
 
-    if USER.publicKey != "":
-        print('start!!')
-        comment=""
-        if tradeInfo['info'] == 'SELL' :
-            comment = '판매'
-        elif tradeInfo['info'] == 'BUY' :
-            comment = '구매'
+    MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
+    if MY_LICENSE_CHK :
+        MY_LICENSE = APILicense.objects.get(userId=USER)
 
-        messageText = "["+str(USER.userId)+"]님이 "+str(tradeInfo['ticker'])+"를 "+str(tradeInfo['price'])+"원 에 "+str(tradeInfo['count'])+"개 "+str(comment)+"하였습니다."
-        send_SMS_message(account_sid=str(str(USER.publicKey)+'26'),
-                         auth_token=str(USER.privateKey),
-                         from_number=str(USER.userPhone),
-                         to_number='+8201026841940',
-                         contents=messageText)
+        if MY_LICENSE.tw_publicKey != "" and MY_LICENSE.tw_privateKey != "" and MY_LICENSE.tw_number != "" :
+            print('SEND MASSGE TEXT CREATE')
+            comment=""
+            if tradeInfo['info'] == 'SELL' :
+                comment = '판매'
+            elif tradeInfo['info'] == 'BUY' :
+                comment = '구매'
+
+            messageText = "["+str(USER.userId)+"]님이 "+str(tradeInfo['ticker'])+"를 "+str(tradeInfo['price'])+"원 에 "+str(tradeInfo['count'])+"개 "+str(comment)+"하였습니다."
+            print("CREATE MESSAGE TEXT COMPLETE")
+            print(messageText)
+
+            send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                             auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                             from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                             to_number=str('+82')+_setDeCrypto(USER.userPhone),
+                             contents=messageText)

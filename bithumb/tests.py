@@ -11,3 +11,8 @@ from bithumb.bithumb_api import *
 # get_hpr('ETH')
 # get_hpr('REP')
 # # Create your tests here.
+
+import pybithumb
+
+df = pybithumb.get_ohlcv("BTC")
+print(df)

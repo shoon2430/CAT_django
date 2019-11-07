@@ -27,25 +27,32 @@
   <body>
 
     <nav class="navbar navbar-expand navbar-dark bg-dark">
-      <image src="/static/image/logo_small.png"></image> <a class="navbar-brand" href="#">CAT</a>
+      <image src="/static/image/logo_small.png"></image>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
       </button>
 
-      <div class="collapse navbar-collapse" id="navbarsExample02">
+      <div class="collapse navbar-collapse" id="cat_navbar">
         <ul class="navbar-nav mr-auto">
           <li class="nav-item active">
-            <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            <a class="nav-link" href="/cat">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Link</a>
+            <a class="nav-link" href="#">History</a>
           </li>
         </ul>
-          <!--
-        <form class="form-inline my-2 my-md-0">
-          <input class="form-control" type="text" placeholder="Search">
-        </form>
-        -->
+        <ul class="form-inline my-2 my-md-0">
+             <li class="navbar-nav">
+              <a id="myId" style="color:#c8c8c8" href="{%url 'userSetting' %}">{{data.userId}}</a>
+             </li>
+            <li class="navbar-nav">
+              <a style="color:#c8c8c8">&nbsp;/&nbsp; </a>
+             </li>
+             <li class="navbar-nav">
+              <a id="logout" style="color:#c8c8c8" href="{%url 'logout' %}">logout</a>
+             </li>
+        </ul>
+
       </div>
     </nav>
 

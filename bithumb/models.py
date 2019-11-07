@@ -11,8 +11,6 @@ class ProgramUser(models.Model):
     userPassword = models.CharField(max_length=100)
     userName = models.CharField(max_length=50)
     userPhone = models.CharField(max_length=100)
-    publicKey = models.CharField(max_length=32)
-    privateKey = models.CharField(max_length=32)
     mySchedulerId = models.CharField(max_length=50,null=True)
     status = models.CharField(max_length=5)
 
@@ -57,6 +55,18 @@ class Wallet(models.Model):
     monney = models.IntegerField(default=0)
     tickerName = models.CharField(max_length=50, null=True)
     tickerQuantity = models.FloatField(default=0)
+
+    def __str__(self):
+        return str(self.userId)
+
+
+class APILicense(models.Model):
+    userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
+    bit_publicKey =  models.CharField(max_length=100)
+    bit_privateKey = models.CharField(max_length=100)
+    tw_publicKey =  models.CharField(max_length=100)
+    tw_privateKey = models.CharField(max_length=100)
+    tw_number = models.CharField(max_length=100)
 
     def __str__(self):
         return str(self.userId)

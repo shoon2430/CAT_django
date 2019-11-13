@@ -4,8 +4,8 @@ import urllib.request
 import json
 import pandas as pd
 
-client_id = "VnZiViX8bLggRNTHDpIJ"
-client_secret = "G_lhdZz0E_"
+client_id = ""
+client_secret = ""
 
 
 def get_trend(body):

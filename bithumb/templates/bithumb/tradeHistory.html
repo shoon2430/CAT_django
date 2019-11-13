@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+
+    <!-- 페이지 아이콘 변경 -->
+    <link rel="icon" href="/static/image/CAT_LOGO.png">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>CAT</title>
+
+      <!-- datepicker -->
+      <link href="https://unpkg.com/gijgo@1.9.13/css/gijgo.min.css" rel="stylesheet" type="text/css" />
+      <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+      <link href="/static/css/making_money.css" rel="stylesheet">
+
+      <link href="/static/css/custom.css" rel="stylesheet">
+      <style>
+          .container { padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto; }
+          @media (min-width: 768px) { .container { width: 750px; } }
+          @media (min-width: 992px) { .container { width: 850px; } }
+          @media (min-width: 1200px) { .container { width: 850px; } }
+          .container-fluid { padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto; }
+
+
+      </style>
+  </head>
+  <body>
+
+    <nav class="navbar navbar-expand navbar-dark bg-dark">
+      <image src="/static/image/logo_small.png"></image>
+      <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExample02" aria-controls="navbarsExample02" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="cat_navbar">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/cat">Home <span class="sr-only">(current)</span></a>
+          </li>
+          <li class="nav-item active">
+            <a class="nav-link" href="history">History</a>
+          </li>
+        </ul>
+        <ul class="form-inline my-2 my-md-0">
+             <li class="navbar-nav">
+              <a id="myId" style="color:#c8c8c8" href="{%url 'userSetting' %}">{{data.userId}}</a>
+             </li>
+            <li class="navbar-nav">
+              <a style="color:#c8c8c8">&nbsp;/&nbsp; </a>
+             </li>
+             <li class="navbar-nav">
+              <a id="logout" style="color:#c8c8c8" href="{%url 'logout' %}">logout</a>
+             </li>
+        </ul>
+
+      </div>
+    </nav>
+
+    <main id="main" class="container">
+
+        <blockquote class="blockquote text-center" style="padding:10px">
+          <h1>Trade History</h1>
+        </blockquote>
+
+        <div class="container">
+            <div class="col-sm-12">
+                <table class="table">
+                    <thead>
+                    <tr>
+                        <th>Coin</th>
+                        <th>Info</th>
+                        <th>Count</th>
+                        <th>Price</th>
+                        <th>Time</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for histroy in data.historys %}
+                        <tr>
+                            <td>{{histroy.ticker}}</td>
+                            <td>{{histroy.tradeInfo}}</td>
+                            <td>{{histroy.tradeCount}}</td>
+                            <td>{{histroy.tradePrice}}</td>
+                            <td>{{histroy.tradeTime|date:'Ymd'}}</td>
+                        </tr>
+                    {%endfor%}
+                    </tbody>
+                </table>
+                <hr/>
+
+                <div class="text-center">
+                    <ul class="pagination pagination-sm justify-content-end">
+                      <li class="page-item">
+
+                          {% if data.contacts.has_previous %}
+
+                            <a class="page-link" style="float:left" href="?page=1">처음으로</a>
+                            <a class="page-link" style="float:left" href="?page={{ contacts.previous_page_number }}">이전</a>
+                          {% endif %}
+
+                      </li>
+                       {% for i in data.p_range %}
+                      <li class="page-item {% if data.contacts.number == i %} active {% endif %}">
+                          <a class="page-link" href="?page={{i}}" >{{i}}</a>
+                      </li>
+                        {% endfor %}
+                      <li class="page-item">
+                          {% if data.contacts.has_next %}
+                          <a class="page-link" href="?page={{ contacts.next_page_number }}">다음</a>
+                          {% endif %}
+                      </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </main>
+    <div class="container">
+        <form sytle="display: none" >
+            <input type="hidden" id="userId" value={{data.userId}}>
+            <input type="hidden" id="userName">
+            <input type="hidden" id="userStatus" value={{data.userStatus}}>
+        </form>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+    <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
+
+
+
+    <script>
+
+
+    </script>
+  </body>
+</html>

@@ -4,6 +4,8 @@ const tickersName = document.querySelectorAll(".ticker_name ");
 const tickersPrice = document.querySelectorAll(".ticker_price");
 const tickersFiveAvg = document.querySelectorAll(".ticker_fiveAvg");
 const tickersState = document.querySelectorAll(".ticker_state");
+const TICKER = document.querySelector("#ticker");
+
 const ONE_SECONDE = 1000
 
 const ANIMATION = document.querySelector("#animation");
@@ -18,6 +20,10 @@ const START = document.querySelector("#startBtn");
 const STOP = document.querySelector("#stopBtn");
 const USER_ID = document.querySelector("#userId")
 const USER_NAME = document.querySelector("#userName")
+
+
+const SEETING_BOX =  document.querySelector("#programSetting");
+const SETTING = document.querySelector("#settingBtn");
 
 const changeTickersPrice = (resultData) => {
     idx = 0;
@@ -84,8 +90,10 @@ const getUpDownData = () =>{
 const startClick = () =>{
     console.log("startClick!!");
 
+
     const sendData =  { 'userId'   : USER_ID.value,
                         'userName' : USER_NAME.value,
+                        'ticker'   : TICKER.value == "" ? 'BTC' : TICKER.value,
                         'startDay' : START_DAY.value,
                         'endDay'   : END_DAY.value
                         };
@@ -131,10 +139,87 @@ const stopClick = () =>{
     });
 }
 
+const settingClick = () =>{
+    console.log("settingClick");
+
+    if(SEETING_BOX.style.display === "none"){
+        SEETING_BOX.style.display = 'block'
+
+        offset = $("#programSetting").offset();
+        $('html, body').animate({scrollTop : offset.top});
+    }else{
+        SEETING_BOX.style.display = 'none'
+    }
+}
+
+const tickerChange = () =>{
+    console.log("tickerChange");
+
+    if(TICKER.value == ""){
+        TICKER.classList.remove('setDark');
+    }else{
+        TICKER.classList.add('setDark');
+
+        const ticker_name = document.querySelector("#tickerName");
+        const price = document.querySelector("#price");
+        const up_down = document.querySelector("#updown");
+        const mdd = document.querySelector("#mdd");
+        const hpr = document.querySelector("#hpr");
+        const loaders = document.querySelectorAll(".loader");
+        const dataList = document.querySelectorAll(".dataList");
+
+        $.ajax({
+            url:'tickerInfo',
+            data:{'ticker':TICKER.value},
+            method:'POST',
+            dataType:'json',
+            success:function(data) {
+                console.log(data);
+                ticker_name.value = data.tickerName+"("+data.tickerKName+")";
+                price.value = data.nowPrice;
+                up_down.value = data.upDown;
+                mdd.value = data.MDD;
+                hpr.value = data.HPR;
+
+            },beforeSend:function(){
+                TICKER.disabled = true
+                TICKER.style.background = '#343a40';
+
+                for(let idx=0; idx< dataList.length; idx++){
+                    dataList[idx].classList.add('hide');
+                }
+
+                for(let idx=0; idx< loaders.length; idx++){
+                    loaders[idx].classList.remove('hide');
+                }
+
+            }
+            ,complete:function(){
+                TICKER.disabled = false
+                TICKER.style.background = "";
+
+                for(let idx=0; idx< dataList.length; idx++){
+                    dataList[idx].classList.remove('hide');
+                }
+
+                for(let idx=0; idx< loaders.length; idx++){
+                    loaders[idx].classList.add('hide');
+                }
+            },
+            error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            }
+            ,timeout:100000
+
+        });
+    }
+}
 
 const buttonManageMent = function(){
     START.addEventListener("click",()=>startClick());
     STOP.addEventListener("click",()=>stopClick());
+    SETTING.addEventListener("click",()=>settingClick());
+    TICKER.addEventListener("change",()=>tickerChange());
 }
 
 

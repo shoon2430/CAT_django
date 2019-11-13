@@ -22,16 +22,23 @@ class Scheduler:
             print("fail to stop Scheduler: {err}".format(err=err))
             return
 
-    def scheduler(self, type, job_id, USER, function):
+    # type, job_id, USER, function
+    def scheduler(self, type, job_id, function, schedulerData):
+
+        USER = schedulerData['USER']
+        ticker = schedulerData['ticker']
+        second = schedulerData['second']
+
         print("{type} Scheduler Start".format(type=type))
         if type == 'interval':
-            self.sched.add_job(function, type, seconds=10, id=job_id, args=(type, job_id, USER))
+            self.sched.add_job(function, type, seconds=10, id=job_id, args=(type, job_id, USER, ticker))
         elif type == 'cron':
             self.sched.add_job(function, type,
                                                  #day_of_week='mon-fri',
-                                                 minute='10',
-                                                 second='10',
-                                                 id=job_id, args=(type, job_id, USER))
+                                                 hour='0',
+                                                 minute='0',
+                                                 second=second,
+                                                 id=job_id, args=(type, job_id, USER, ticker))
 
 
 

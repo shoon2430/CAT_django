@@ -13,7 +13,7 @@
       <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
       <link href="/static/css/making_money.css" rel="stylesheet">
 
-      <link href="/static/css/custom.css" rel="stylesheet">
+      <link href="/static/css/custom.css?Ver=4" rel="stylesheet">
       <style>
           .container { padding-right: 15px; padding-left: 15px; margin-right: auto; margin-left: auto; }
           @media (min-width: 768px) { .container { width: 750px; } }
@@ -38,7 +38,7 @@
             <a class="nav-link" href="/cat">Home <span class="sr-only">(current)</span></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">History</a>
+            <a class="nav-link" href="history">History</a>
           </li>
         </ul>
         <ul class="form-inline my-2 my-md-0">
@@ -65,7 +65,7 @@
         <div class="container">
             <div class="row">
                 <div class="col-sm-12" style="">
-                        <div class="row" style="padding:5px;">
+                        <div class="row p1" >
                             <div class="col-sm-12">
                                 <div id="animation">
                                   <div id="animaionIcon"></div>
@@ -74,45 +74,148 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="row" style="padding:5px;">
-                            <div class="col-sm-8 setLeft" style="padding:5px;">
-                                    <label class="text-center setLeft" for="myMoney" style="padding:5px; width:15%">Money:</label>
-                                    <input type="text" class="form-control setLeft" id="myMoney" style="width:35%">
-                                    <label class="text-center setLeft" for="myCoin" style="padding:5px; width:15%">Coin:</label>
-                                    <input type="text" class="form-control setLeft" id="myCoin"style="width:35%;">
+                        <div class="row pd1">
+                            <div class="col-sm-7  pd1" >
+
                             </div>
-                            <div class="col-sm-4" style="padding:5px;">
+                            <div class="col-sm-4 col-10 pd2" >
                                 <div>
                                 <button class="btn btn-primary" id="startBtn" style="width:100%">START</button>
                                 <button class="btn btn-danger" id="stopBtn" style="width:100%; display:none">STOP</button>
-                                    </div>
+                                </div>
+                            </div>
+                             <div class="col-sm-1 col-2 pd2" >
+                                <button class="btn btn-secondary" id="settingBtn" style="width:100%">
+                                    <image src="/static/image/setting.png" style="width:20px; height:20px"></image>
+                                </button>
                             </div>
                         </div>
-                        <div id="programSetting">
-                            <div class="row" style="padding:5px;">
-                                <div class="col-sm-2" style="padding:5px;">
+                        <div id="programSetting" style="display:none">
+
+                            <div class="row pd1">
+                                <div class="col-sm-2 col-2 pd2" >
                                     <div class="input-group">
-                                        <select class="form-control text-center" style="text-align:center">
-                                            <option value="BTC">BTC</option>
-                                            <option value="ETH">ETH</option>
-                                            <option value="REP">REP</option>
+                                        <select class="form-control text-center" id="ticker" style="text-align:center">
+                                            <option value="">None</option>
+                                            {% for ticker,name in data.tickers %}
+                                            <option value="{{ticker}}"><b style="font-size:5px">{{ticker}}</b></option>
+                                            {%endfor%}
                                         </select>
                                     </div>
                                 </div>
-                                <div class="col-sm-5" style="padding:5px;">
-                                        <input class="text-center" id="startDay" placeholder="startDay" />
-                                </div>
-                                <div class="col-sm-5"style="padding:5px;">
+
+                                <span class="col-sm-5 col-5 pd2" >
+                                        <input class="text-center" id="startDay" placeholder="startDay" value="{{data.today}}" />
+                                </span>
+                                <span class="col-sm-5 col-5 pd2">
                                         <input class="text-center" id="endDay" placeholder="endDay" />
-                                </div>
+                                </span>
 
                             </div>
+                            <div class="row">
+                                <div class="col-sm-12 col-12 pd2" >
+                                <table class="table table-dark">
+                                    <thead>
+                                        <tr>
+                                            <th scope="row" colspan="2">
+                                                <span>
+                                                    <b>TICKER</b>
+                                                </span>
+                                                <span>
+                                                    <div class="loader hide" ></div>
+                                                    <input type="text" class="form-control form-control dataList" id="tickerName" style="text-align:center" disabled/>
+                                                </span>
+                                            </th>
+                                            <th scope="row">
+                                                <span>
+                                                    <b>PRICE</b>
+                                                </span>
+                                                <span>
+                                                    <div class="loader hide" ></div>
+                                                    <input type="text" class="form-control form-control dataList" id="price" style="text-align:center" disabled/>
+                                                </span>
+                                            </th>
+                                            <th scope="row">
+                                                <span>
+                                                    <b>UP DOWN</b>
+                                                </span>
+                                                <span>
+                                                    <div class="loader hide" ></div>
+                                                    <input type="text" class="form-control form-control dataList" id="updown" style="text-align:center" disabled/>
+                                                </span>
+
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <th colspan="4">
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-6">
+                                                        <b>Set up rate MDD</b>
+                                                        <select class="form-control text-center" id="mddSelect" style="text-align:center">
+                                                            <option value="">전체</option>
+                                                            <option value="0">지난 6개월간 상승률</option>
+                                                            <option value="1">지난 1년간 상승률</option>
+                                                            <option value="2">지난 2년간 상승률</option>
+                                                            <option value="3">지난 3년간 상승률</option>
+                                                         </select>
+                                                    </div>
+                                                     <div class="col-sm-6 col-6">
+                                                         <b>Maximum Draw Down</b>
+
+                                                        <div class="loader hide" ></div>
+                                                        <div class="row">
+                                                            <div class="col-sm-11 col-11">
+                                                                 <input type="text" class="form-control form-control dataList" id="mdd" style="text-align:right" disabled/>
+                                                            </div>
+                                                            <div class="col-sm-1 col-1 dataList" style="margin-left:-25px">
+                                                                <h4>%</h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="4">
+                                                <div class="row">
+                                                    <div class="col-sm-6 col-6">
+                                                        <b>Set up rate HPR</b>
+                                                        <select class="form-control text-center" id="mhprSelect" style="text-align:center">
+                                                            <option value="">전체</option>
+                                                            <option value="0">지난 6개월간 상승률</option>
+                                                            <option value="1">지난 1년간 상승률</option>
+                                                            <option value="2">지난 2년간 상승률</option>
+                                                            <option value="3">지난 3년간 상승률</option>
+                                                         </select>
+                                                    </div>
+                                                     <div class="col-sm-6 col-6">
+                                                         <b>Holding Period Return</b>
+
+                                                        <div class="loader hide" ></div>
+                                                        <div class="row">
+                                                            <div class="col-sm-11 col-11">
+                                                                 <input type="text" class="form-control form-control dataList" id="hpr" style="text-align:right" disabled/>
+                                                            </div>
+                                                            <div class="col-sm-1 col-1 dataList" style="margin-left:-25px">
+                                                                <h4>%</h4>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                            <!-- 스크롤바 생성용 -->
+                            <br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/><br/>
                         </div>
 
                 </div>
             </div>
-            <div class="row"></div>
-            <div class="row"></div>
         </div>
     </main>
     <div class="container">
@@ -129,7 +232,7 @@
 
     <script src="https://unpkg.com/gijgo@1.9.13/js/gijgo.min.js" type="text/javascript"></script>
 
-    <script src="/static/js/custom.js"></script>
+    <script src="/static/js/custom.js?Ver=14"></script>
 
     <script>
 

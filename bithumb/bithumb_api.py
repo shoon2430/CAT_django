@@ -1,4 +1,8 @@
+#bithumb에서 지원이 잘안되는 함수가있어 다른 거래소 추가
 import pybithumb
+import pykorbit
+import pyupbit
+
 import numpy as np
 import datetime
 import math
@@ -15,15 +19,14 @@ def get_tickers(flag='All'):
     tickers = pybithumb.get_tickers()
     return tickers
 
-#속도때문에 하드코딩
 def get_main_tickers():
-    tickers = ['BTC', 'ETH', 'XRP', 'BCH', 'LTC', 'EOS', 'BSV', 'XLM', 'TRX','ADA']#,'LINK','ETC','QTUM','ZRX','OMG','BTT','REP']
+    tickers = [('BTC','비트코인'), ('ETH','이더리움'), ('XRP','리플'), ('BCH',"비트코인캐시"), ('LTC',"라이트코인"),
+               ('EOS',"이오스"), ('BSV',"비트코인에스브이"), ('XLM',"스텔라루멘"), ('TRX','트론'),('ADA','에이다')]
     return tickers
 
 
 # 현재~5일전까지 평균과 현재가격을 비교하여
 # 상승장인지 하락장인지 구분
-# pybithumb.get_ohlcv(ticker) 속도가 너무안나옴 해결방안이없는지...
 #
 def  bull_market(ticker,price):
     df = pybithumb.get_ohlcv(ticker)
@@ -48,6 +51,11 @@ def up_down_list(tickers):
 
     return result_data
 
+def get_up_down(ticker):
+    price = pybithumb.get_current_price(ticker)
+    return bull_market(ticker,price)
+
+
 #현재 데이터 가져오기
 def now_data_list(tickers):
     result=[]
@@ -67,6 +75,10 @@ def get_now_price(ticker):
         price = math.trunc(price)
     return price
 
+# 매수호가 : 사려고하는 최대가격
+# 매도호가 : 팔려고하는 최소가격
+
+
 # 목표가격 가져오기
 def get_target_price(ticker):
     df = pybithumb.get_ohlcv(ticker)
@@ -78,48 +90,12 @@ def get_target_price(ticker):
     target = today_open + (yesterday_high - yesterday_low) * 0.5
     return target
 
-
-# 매수호가 : 사려고하는 최대가격
-# 매도호가 : 팔려고하는 최소가격
-
-
 # 5일간 이동평균
 def get_yesterday_ma5(ticker):
      df = pybithumb.get_ohlcv(ticker)
      close = df['close']
      ma = close.rolling(window=5).mean()
      return ma[-2]
-
-
-
-def get_hpr(ticker):
-    try:
-        df = pybithumb.get_ohlcv(ticker)
-        df = df['2019']
-
-        df['ma5'] = df['close'].rolling(window=5).mean().shift(1)
-        df['range'] = (df['high'] - df['low']) * 0.5
-        df['target'] = df['open'] + df['range'].shift(1)
-        df['bull'] = df['open'] > df['ma5']
-
-        fee = 0.0032
-        df['ror'] = np.where((df['high'] > df['target']) & df['bull'],
-                   df['close'] / df['target'] - fee,
-                   1)
-
-        df['hpr'] = df['ror'].cumprod()
-        df['dd'] = (df['hpr'].cummax() - df['hpr']) / df['hpr'].cummax() * 100
-
-
-        print(df['bull'])
-        print("MDD: ", df['dd'].max())
-        print("HPR: ", df['hpr'][-2])
-
-       # return df['hpr'][-2]
-    except:
-        return 1
-
-
 
 
 def getMinPrice(ticker):

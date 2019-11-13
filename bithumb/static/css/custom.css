@@ -6,3 +6,52 @@ float:left;
 .setRight {
 float:right;
 }
+
+
+.setDark{
+    background-color:#343a40;
+    border-color: #343a40;
+    color : #ffffff;
+}
+
+.pd05 {
+ padding:0.5px;
+}
+
+.pd1 {
+ padding:1px;
+}
+
+.pd15 {
+ padding:1.5px;
+}
+
+.pd2 {
+ padding:2px;
+}
+
+.pd25 {
+ padding:2.5px;
+}
+
+.hide {
+ display:none
+}
+
+.show {
+ display:block
+}
+
+.loader {
+  border: 5px solid #f3f3f3; /* Light grey */
+  border-top:5px solid #3498db; /* Blue */
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

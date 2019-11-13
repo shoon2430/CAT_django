@@ -9,9 +9,9 @@ from django.utils import timezone
 class ProgramUser(models.Model):
     userId = models.CharField(max_length=100, primary_key=True)
     userPassword = models.CharField(max_length=100)
-    userName = models.CharField(max_length=50)
+    userName = models.CharField(max_length=100)
     userPhone = models.CharField(max_length=100)
-    mySchedulerId = models.CharField(max_length=50,null=True)
+    mySchedulerId = models.CharField(max_length=100,null=True)
     status = models.CharField(max_length=5)
 
     def __str__(self):
@@ -31,8 +31,9 @@ class ProgramUser(models.Model):
 
 class TradeHistory(models.Model):
     userId = models.ForeignKey(ProgramUser,null=True, on_delete=models.CASCADE)
-    ticker = models.CharField(max_length=50)
-    tradeInfo = models.CharField(max_length=50)
+    schedulerId = models.CharField(max_length=300, blank=True)
+    ticker = models.CharField(max_length=100)
+    tradeInfo = models.CharField(max_length=100)
     tradeCount = models.FloatField(default=0)
     tradePrice = models.IntegerField(default = 0)
     tradeTime = models.DateTimeField(default=timezone.now)
@@ -42,9 +43,15 @@ class TradeHistory(models.Model):
 
 class TradeScheduler(models.Model):
     userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
-    schedulerId = models.CharField(max_length=50, blank=True)
+    schedulerId = models.CharField(max_length=300, blank=True)
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField(default=timezone.now)
+    ticker = models.CharField(max_length=100)
+    startMoney = models.IntegerField(default=0)
+    startTickerQuantity = models.FloatField(default=0)
+    endMoney = models.IntegerField(default=0)
+    endTickerQuantity = models.FloatField(default=0)
+    tradeYield = models.FloatField(default=0)
 
     def __str__(self):
         return str(self.schedulerId)
@@ -53,7 +60,7 @@ class TradeScheduler(models.Model):
 class Wallet(models.Model):
     userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
     monney = models.IntegerField(default=0)
-    tickerName = models.CharField(max_length=50, null=True)
+    ticker = models.CharField(max_length=100, null=True)
     tickerQuantity = models.FloatField(default=0)
 
     def __str__(self):
@@ -62,11 +69,13 @@ class Wallet(models.Model):
 
 class APILicense(models.Model):
     userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
-    bit_publicKey =  models.CharField(max_length=100)
-    bit_privateKey = models.CharField(max_length=100)
-    tw_publicKey =  models.CharField(max_length=100)
-    tw_privateKey = models.CharField(max_length=100)
-    tw_number = models.CharField(max_length=100)
+    bit_publicKey =  models.CharField(max_length=500)
+    bit_privateKey = models.CharField(max_length=500)
+    tw_publicKey =  models.CharField(max_length=500)
+    tw_privateKey = models.CharField(max_length=500)
+    tw_number = models.CharField(max_length=500)
+    nv_publicKey = models.CharField(max_length=500)
+    nv_privateKey = models.CharField(max_length=500)
 
     def __str__(self):
         return str(self.userId)

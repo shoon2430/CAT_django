@@ -1,94 +1,63 @@
-from django.test import TestCase
-from bithumb.bithumb_api import *
-import pybithumb
-import pykorbit
-
-import json
-import datetime
-import requests
-from pandas import DataFrame
-from bs4 import BeautifulSoup
-import matplotlib.pyplot as plt
-
-import pandas as pd
 
 
-# t="BTC"
-#
-# df = pykorbit.get_ohlc(t,start='2019-06-01',end='2019-11-13')
-#
-#
-#
-# def getBolingerBand(df, n=20, k=2):
-#     df['ma20'] = df['close'].rolling(window=n).mean()
-#     df['upper'] = df['ma20'] + k* df['close'].rolling(window=n).std()
-#     df['lower'] = df['ma20'] - k* df['close'].rolling(window=n).std()
-#
-#     return df
-#
-# def showBolingerBand(df):
-#     fig = plt.figure(figsize=(10,10))
-#     ax_main = fig.add_subplot(1,1,1)
-#
-#     ax_main.set_xlabel('Date')
-#     print("2")
-#     ax_main.plot(df.index, df['high'],'r', label="High")
-#     ax_main.plot(df.index, df['low'],'b', label="Low")
-#     ax_main.plot(df.index, df['ma20'],'k',label="ma20")
-#     ax_main.plot(df.index, df['upper'],label="upper")
-#     ax_main.plot(df.index, df['lower'],label="lower")
-#     ax_main.set_title("TITLE",fontsize=22)
-#     ax_main.set_xlabel('Date')
-#
-#     ax_main.legend(loc='best')
-#     plt.grid()
-#     plt.show()
-#
-# df =getBolingerBand(df)
-# print(df)
-# showBolingerBand(df)
-#
-# price = pykorbit.get_current_price('BTC')
-# print("ma20 : %s " %df['ma20'][-1])
-# print("upper : %s " %df['upper'][-1])
-# print("lower : %s " %df['lower'][-1])
-# print("price : %s " %price)
-#
-# if float(price) > float(df['upper'][-1]):
-#     print("매수")
-# elif float(price) < float(df['lower'][-1]):
-#     print("매도")
-# else:
-#     print("none")
+from bithumb.coinone_api import *
 
-
-
-'''
-매도기준 1.
-밴드 폭이 축소되면서 밀집구간을 거친 후에 
-주가가 상한선을 상향돌파시 매수,
-주가가 하양선을 하향이탈시 매도
-'''
-
-'''
-매도기준 2.
-주가가 상한선에 접근하고 지표가 강세를 확증할 때 매수,
-주가가 하한선에 접근하고 지표가 약세를 확증할 때 매도
-'''
-
-'''
-매도기준 3.
-주가가 상한선을 여러번 건드리지만 주가지표가 약세를 보이면
-상한선 근처에서 매도.
-주가가 하한선을 여러번 건드리지만 주가지표가 강세를 보이면
-하한선 근처에서 매수.
-'''
-
-# 매도기준2.
-# 매도기준3.
-
-# a = {'a':1, 'b':2}
-# b= {'c':3, 'd':4}
+# aa = "a01e239b-6e45-4e3c-9584-7cc29d55086a"
+# ss = "caf9e416-f626-45d3-9bea-56317af58684"
 #
-# c = {**a,**b}
-# print(c)
+#
+# C = coinone(aa,ss)
+#
+#
+# C.coinone_buy_coin('BTC')
+# orders = C.coinone_my_orders('BTC')
+#
+#
+# for i in range(0,5):
+#     if orders :
+#         print(orders)
+#         time.sleep(60)
+#         for order in orders:
+#             C.coinone_cacel_order("BTC",order)
+
+#
+# import datetime
+# from forex_python.converter import CurrencyRates
+#
+# # 5분봉 15분봉..
+# # minute = 5, 15, 30, 120, 240, 14400
+# def get_minute_price(ticker,minute=5):
+#
+#     currencyPair = "USDC_"+str(ticker).upper()
+#     periodSec = 60*minute
+#
+#     nowDay = datetime.datetime.now()
+#     before = nowDay - datetime.timedelta(minutes=minute)
+#     endTime = int(nowDay.timestamp())
+#     startTime = int(before.timestamp())
+#
+#     url = 'https://poloniex.com/public?command=returnChartData&currencyPair='
+#     url=url+str(currencyPair) + '&start=' + str(startTime) + '&end=' + str(endTime) + '&period=' + str(periodSec)
+#     r = requests.get(url)
+#     print(r.text)
+#     json_r = json.loads(r.text)
+#     total = 0
+#     for r in json_r:
+#         total = total + r['weightedAverage']
+#     avg = total / len(json_r)
+#
+#     #환율 변환
+#     c = CurrencyRates()
+#     usd_krw = c.get_rates('USD')['KRW']
+#
+#     krw_price = avg * usd_krw
+#     return krw_price
+
+# tradeHistory ={
+#     'curreny' : 1,
+#     'buy-qty': 1,
+#     'buy-price':2
+# }
+#
+# massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['curreny'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
+# print(massage)

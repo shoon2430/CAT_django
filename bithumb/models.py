@@ -79,3 +79,20 @@ class APILicense(models.Model):
 
     def __str__(self):
         return str(self.userId)
+
+
+class TickerPrice(models.Model):
+    NAME = models.CharField(max_length=500)
+    TIME = models.DateTimeField(default=timezone.now)
+    BTC = models.CharField(max_length=500)
+    ETH = models.CharField(max_length=500)
+    XRP = models.CharField(max_length=500)
+    BCH = models.CharField(max_length=500)
+    LTC = models.CharField(max_length=500)
+    EOS = models.CharField(max_length=500)
+    BSV = models.CharField(max_length=500)
+    XLM = models.CharField(max_length=500)
+    TRX = models.CharField(max_length=500)
+
+    def __str__(self):
+        return str(self.NAME)

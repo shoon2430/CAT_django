@@ -1,10 +1,12 @@
 #bithumb에서 지원이 잘안되는 함수가있어 다른 거래소 추가
+import json
 import pykorbit
-
 import numpy as np
 import datetime
 import math
+
 from twilio.rest import Client
+from dateutil.relativedelta import relativedelta
 from math import *
 
 
@@ -15,7 +17,7 @@ def kor_get_tickers(flag='All'):
 
 def kor_get_main_tickers():
     tickers = [('BTC','비트코인'), ('ETH','이더리움'), ('XRP','리플'), ('BCH',"비트코인캐시"), ('LTC',"라이트코인"),
-               ('EOS',"이오스"), ('BSV',"비트코인에스브이"), ('XLM',"스텔라루멘"), ('TRX','트론'),('ADA','에이다')]
+               ('EOS',"이오스"), ('BSV',"비트코인에스브이"), ('XLM',"스텔라루멘"), ('TRX','트론')]
     return tickers
 
 
@@ -70,8 +72,6 @@ def kor_get_now_price(ticker):
 
 # 매수호가 : 사려고하는 최대가격
 # 매도호가 : 팔려고하는 최소가격
-
-
 # 목표가격 가져오기
 def kor_get_target_price(ticker):
     df = pykorbit.get_ohlc(ticker,period=5)
@@ -88,7 +88,6 @@ def kor_get_yesterday_ma5(ticker):
      df = pykorbit.get_ohlc(ticker,period=5)
      close = df['close']
      ma = close.rolling(window=5).mean()
-     print(ma)
      return ma[-1]
 
 def kor_getMinPrice(ticker):
@@ -212,12 +211,21 @@ def _get_k(ticker, fee):
     # print('K : %s' % (K))
     return round(K,2)
 
-def backTasting(ticker, startDay='2016-06-01', endDay='2019-11-11'):
+def backTesting(ticker, dateType='0'):
 
     fee = _get_fee(ticker)
     k = _get_k(ticker, fee)
 
-    df = pykorbit.get_ohlc(ticker,start=startDay,end=endDay)
+    nowDay = datetime.datetime.now()
+    type = {'1': (nowDay - relativedelta(months=6)).strftime('%Y-%m-%d'),
+            '2': (nowDay - relativedelta(years=1)).strftime('%Y-%m-%d'),
+            '3': (nowDay - relativedelta(years=2)).strftime('%Y-%m-%d'),
+            '4': (nowDay - relativedelta(years=3)).strftime('%Y-%m-%d')
+            }
+
+    startDay = type.get(str(dateType),'2016-06-01')
+
+    df = pykorbit.get_ohlc(ticker,start=startDay,end=nowDay.strftime("%Y-%m-%d"))
 
     df['ma5'] = df['close'].rolling(window=5).mean().shift(1)
     df['range'] = (df['high'] - df['low']) * k
@@ -252,5 +260,3 @@ def send_SMS_message(to_number, contents, account_sid, auth_token, from_number):
     )
     print(message.sid)
     print('문자메세지가 발송되었습니다. from {0} to {1} message {2} '.format(to_number,from_number,contents))
-
-

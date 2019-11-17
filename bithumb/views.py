@@ -1,30 +1,121 @@
 import json
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
-
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
-from django.contrib.auth import login as django_login, logout as django_logout, authenticate
 from django.urls import  reverse
 from django.core.paginator import Paginator
+from cat.settings import MY_SECRET_KEY
 
 from bithumb.apsScheduler import Scheduler
-# from bithumb.bithumb_api import *
+from bithumb.coinone_api import *
 from bithumb.korbit_api import *
-import math
-
-
-from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet, APILicense
-from cat.settings import MY_SECRET_KEY
+from bithumb.trendFigures import NaverTrend
 from bithumb.AESCipher import AESCIPER
-import hashlib
+from bithumb.tradeType import *
 
+from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet, APILicense,TickerPrice
+
+import hashlib
+import math
 from django.utils import timezone
 from datetime import datetime
 import time
 
 from django.conf import settings
 from django.contrib.sessions.middleware import  SessionMiddleware
+
+COINONE = coinoneSave(name="COINONE")
+
+#코인원 데이터 수집
+# 5분간 이동평균데이터를 만들기위해
+def save_coinone_price_data():
+    try:
+        COINONE._coinone_save_price()
+
+        TickerPrice.objects.create(
+            NAME='COINONE',
+            BTC=COINONE.BTC,
+            ETH=COINONE.ETH,
+            XRP=COINONE.XRP,
+            BCH=COINONE.BCH,
+            LTC=COINONE.LTC,
+            EOS=COINONE.EOS,
+            BSV=COINONE.BSV,
+            XLM=COINONE.XLM,
+            TRX=COINONE.TRX,
+        )
+        allPrice = TickerPrice.objects.all()
+        # 12*60*2= 2시간정도의 데이터 수집
+        # 이후데이터는 삭제
+        if len(allPrice) > 1440:
+            allPrice[0].delete()
+            # print("DELETE")
+
+        # if len(allPrice) == 180:
+        #     ticker= "BTC"
+        #     priceList = get_coinone_price_data()
+        #     priceData = coinone_get_ma_price(priceList, ticker, 15)
+        #     ShortTermInvestment(priceData, ticker)
+
+    except Exception as e:
+        print(e)
+
+def get_coinone_price_data():
+    try:
+        allPrice = TickerPrice.objects.all()
+        priceList = []
+        for price in allPrice:
+            priceList.append(
+                {
+                    'BTC': float(price.BTC),
+                    'ETH': float(price.ETH),
+                    'XRP': float(price.XRP),
+                    'BCH': float(price.BCH),
+                    'LTC': float(price.LTC),
+                    'EOS': float(price.EOS),
+                    'BSV': float(price.BSV),
+                    'XLM': float(price.XLM),
+                    'TRX': float(price.TRX),
+                }
+            )
+        return priceList
+
+    except Exception as e:
+        print(e)
+
+
+# 개인적으로 테스트 하기위한것임
+@csrf_exempt
+def testing(request):
+    try:
+        userId = request.POST['userId']
+        ticker = request.POST['ticker']
+        type = request.POST['type']
+
+        print("=== TEST REQUEST ===")
+        print("userId : %s "%(userId))
+        print("ticker : %s "%(ticker))
+        print("type : %s "%(type))
+
+        # USER = ProgramUser.objects.get(userId=userId)
+        # _realTrading(type=type,job_id="TEST",USER=USER,ticker=ticker)
+        tickers = kor_get_main_tickers()
+
+        scheduler.scheduler("SAVE", "coinone-data-save", save_coinone_price_data, {})
+
+        # priceList = get_coinone_price_data()
+        # priceData = coinone_get_ma_price(priceList, ticker, 5)
+        # ShortTermInvestment(priceData, ticker)
+
+        data = {
+            'ticker': "TEST",
+            'status': "SUCSSECE"
+        }
+        return HttpResponse(json.dumps(data), content_type="application/json")
+
+    except Exception as e:
+        print(e)
 
 
 
@@ -156,7 +247,7 @@ def getTickerInfo(request):
 
     nowPrice = kor_now_data(ticker)
     upDown = kor_get_up_down(ticker)
-    bt = backTasting(ticker)
+    bt = backTesting(ticker)
     MDD = bt['MDD']
     HPR = bt['HPR']
 
@@ -170,6 +261,23 @@ def getTickerInfo(request):
     }
 
     return HttpResponse(json.dumps(data), content_type="application/json")
+
+
+@csrf_exempt
+def getBackTestingResult(request):
+
+    ticker = request.POST['ticker']
+    selectType = request.POST['selectType']
+    dateType = request.POST['dateType']
+
+    bt = backTesting(ticker, dateType)
+    bt = bt.get(selectType,None)
+
+    data={
+       'bt':bt
+    }
+
+    return HttpResponse(json.dumps(data),content_type="application/json")
 
 
 def userSetting(request):
@@ -277,13 +385,6 @@ def tradeHistory(request):
     end_block = start_block + page_range
     p_range = paginator.page_range[start_block:end_block]
 
-    # print('page_range : %s ' % (page_range))
-    # print('current_block : %s ' % (current_block))
-    # print('start_block : %s ' % (start_block))
-    # print('end_block : %s ' % (end_block))
-    # print('p_range : %s ' % (p_range))
-
-
     first_list = int((int(page)-1)*pageCount)
     last_list = int(int(page)*pageCount)
     historys = historys[first_list:last_list]
@@ -296,24 +397,20 @@ def tradeHistory(request):
 
     return render(request, 'bithumb/tradeHistory.html', {'data':resultData})
 
+
+
 @csrf_exempt
 def startTrading(request):
     print("========== startTrading ========== ")
-    cnt = 0
-    userId = request.POST['userId']
-    startDay = request.POST['startDay']
-    endDay =  request.POST['endDay']
-    ticker = request.POST['ticker']
-
-
-    publicKey = ''
-    privateKey = ''
-
     try:
-        USER = ProgramUser.objects.get(userId=userId)
-        print("========== GET ProgramUser ========== ")
+        userId = request.POST['userId']
+        ticker = request.POST['ticker']
+        tradeKind = request.POST['kind']
+        tradeType = request.POST['type']
 
-        userId = USER.userId
+        # 유저정보 획득
+        USER = ProgramUser.objects.get(userId=userId)
+
         mySchedulerId = USER.mySchedulerId
 
         myScheduler = TradeScheduler.objects.filter(schedulerId= mySchedulerId)
@@ -321,10 +418,11 @@ def startTrading(request):
 
         if len(myScheduler) == 0 :
 
-            # 스케쥴러 아이디 생성
+            # 스케쥴러 아이디 생성 userId +(전체갯수+1)
             allScheduler = TradeScheduler.objects.all()
-            newSchedulerId = str(userId)+str(len(allScheduler)+1)
+            newSchedulerId = str(tradeType)+str(userId)+str(len(allScheduler)+1)
 
+            # 거래수행시 각사용자마다 시간을 다르게하기위함
             second= (int(len(allScheduler)+1)*3) % 60
 
             schedulerData = {
@@ -334,17 +432,31 @@ def startTrading(request):
             }
 
             # 스케쥴러 등록
-            scheduler.scheduler('cron', newSchedulerId, _trading, schedulerData)
+            # 실제 거래
+            if tradeKind == "REAL" :
+                scheduler.scheduler(tradeType, newSchedulerId, _realTrading, schedulerData)
+                print("Real Trading Setting!!")
+            # 가상 거래
+            elif  tradeKind == "TEST" :
+                scheduler.scheduler(tradeType, newSchedulerId, _testTrading, schedulerData)
+                print("Test Trading Setting!!")
+
             print("========== SET NEW Scheduler ========== ")
 
             # 스케쥴러 정보 등록
             # 시작할때의 기본금을 지정
-            myWallet = Wallet.objects.get(userId=USER)
+            startMoney = 0
+            startTickerQuantity = 0
+            if tradeKind == "TEST" :
+                myWallet = Wallet.objects.get(userId=USER)
+                startMoney = myWallet.monney
+                startTickerQuantity = myWallet.tickerQuantity
+
             TradeScheduler.objects.create(userId= USER,
                                           schedulerId= newSchedulerId,
                                           ticker=ticker,
-                                          startMoney=myWallet.monney,
-                                          startTickerQuantity=myWallet.tickerQuantity)
+                                          startMoney=startMoney,
+                                          startTickerQuantity=startTickerQuantity)
             print("========== CREATE FIRST myScheduler ========== ")
 
             # 사용자에게 스케쥴러 정보 등록
@@ -362,10 +474,7 @@ def startTrading(request):
 
     data = {
         'userId':userId,
-        'publicKey':publicKey,
-        'privateKey':privateKey,
-        'state':USER.status,
-        'max': cnt
+        'state':USER.status
     }
 
     return HttpResponse(json.dumps(data), content_type="application/json")
@@ -375,6 +484,7 @@ def startTrading(request):
 def stopTrading(request):
     print('=== stopTrading ===')
     userId = request.POST['userId']
+    tradeKind = request.POST['kind']
     print('GET userId : ',userId)
 
     try:
@@ -395,29 +505,31 @@ def stopTrading(request):
             print("========== KILL Scheduler ========== ")
             scheduler.kill_scheduler(str(mySchedulerId))
 
-            ticker = myScheduler.ticker
-            sq = myScheduler.startTickerQuantity
-            eq = myScheduler.endTickerQuantity
-            em = myScheduler.endMoney
-            sm = myScheduler.startMoney
             tradeYield = 0
+            if tradeKind == "TEST":
+                ticker = myScheduler.ticker
+                sq = myScheduler.startTickerQuantity
+                eq = myWallet.tickerQuantity
+                em = myWallet.monney
+                sm = myScheduler.startMoney
 
-            if  int(sq) == 0 and int(eq) ==  0:
-                # money 끼리 비교
-                tradeYield = (em - sm)/sm * 100
-                print("type 1. start[%s] end[%s]" % (sm, em))
-            elif int(sq) ==  0  and int(eq) != 0:
-                price  = kor_get_now_price(ticker)
-                tradeYield = ((eq*price) - em)/em *100
-                print("type 2. start[%s] end[%s]" % (sm, (eq*price)))
-            elif int(sq) != 0 and int(eq) == 0 :
-                price = kor_get_now_price(ticker)
-                tradeYield = (em - (sq*price)) / (sq*price) * 100
-                print("type 3. start[%s] end[%s]" % ((sq*price), em))
-            elif int(sq) != 0 and int(eq) != 0:
-                price = kor_get_now_price(ticker)
-                tradeYield = ((eq * price) - (sq * price)) / (sq * price) * 100
-                print("type 4. start[%s] end[%s]" % ((sq*price), (eq*price)))
+
+                if  int(sq) == 0 and int(eq) ==  0:
+                    # money 끼리 비교
+                    tradeYield = (em - sm)/sm * 100
+                    print("type 1. start[%s] end[%s]" % (sm, em))
+                elif int(sq) ==  0  and int(eq) != 0:
+                    price  = kor_get_now_price(ticker)
+                    tradeYield = ((eq*price) - em)/em *100
+                    print("type 2. start[%s] end[%s]" % (sm, (eq*price)))
+                elif int(sq) != 0 and int(eq) == 0 :
+                    price = kor_get_now_price(ticker)
+                    tradeYield = (em - (sq*price)) / (sq*price) * 100
+                    print("type 3. start[%s] end[%s]" % ((sq*price), em))
+                elif int(sq) != 0 and int(eq) != 0:
+                    price = kor_get_now_price(ticker)
+                    tradeYield = ((eq * price) - (sq * price)) / (sq * price) * 100
+                    print("type 4. start[%s] end[%s]" % ((sq*price), (eq*price)))
 
             USER.mySchedulerId = ''
             USER.status = 'N'
@@ -441,40 +553,173 @@ def stopTrading(request):
     return HttpResponse(json.dumps(data), content_type="application/json")
 
 
-def _trading( type, job_id, USER, ticker):
-    now = str(time.localtime().tm_hour) + ":"\
-        + str(time.localtime().tm_min) + ":"\
-        + str(time.localtime().tm_sec)
 
-    print("========== Scheduler Execute ==========")
-    print("=> TYPE[%s] Scheduler_ID[%s] : %s " % (type, job_id, now))
+def _realTrading( type, job_id, USER, ticker):
+    try:
+        showTradeStartInfo(job_id)
 
-    ma5 = kor_get_yesterday_ma5(ticker)
-    target_price = kor_get_target_price(ticker)
-    _sellCoin(USER, ticker)
+        MY_LICENSE = APILicense.objects.get(userId=USER)
+        print(_setDeCrypto(MY_LICENSE.bit_publicKey))
+        print(_setDeCrypto(MY_LICENSE.bit_privateKey))
+        MY_COINONE = coinone(_setDeCrypto(MY_LICENSE.bit_publicKey), _setDeCrypto(MY_LICENSE.bit_privateKey))
 
-    current_price = kor_get_now_price(ticker)
-    print('MA5 : '+str(ma5))
-    print('C.P : '+str(current_price))
-    print('T.P : '+str(target_price))
+        if type == "BV" :
+            print("BreakingVolatility")
 
-    if (current_price > target_price) and (current_price > ma5):
-        _buyCoin(USER, ticker)
-    else :
-        print("dont BUY")
+            massage = ""
+            tradeHistory = MY_COINONE.coinone_sell_coin(ticker)
+            if tradeHistory['sell-qty'] > 0.0:
+                massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)"%(tradeHistory['currency'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
+                print(massage)
 
-        MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
-        if MY_LICENSE_CHK:
-            MY_LICENSE = APILicense.objects.get(userId=USER)
-            print('SEND MASSGE TEXT CREATE')
-            messageText = "Don`t BUY"
-            print(messageText)
+                if _messageLicenseChk(USER):
+                    send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                                     auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                                     from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                                     to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                                     contents=massage)
+
+            if BreakingVolatility(ticker):
+                tradeHistory = MY_COINONE.coinone_buy_coin(ticker)
+                massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['currency'], tradeHistory['sell-qty'], tradeHistory['sell-price'])
+                print(massage)
+            else :
+                massage = "BV-DontBuy"
+                print(massage)
+
             send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
                              auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
                              from_number=_setDeCrypto(MY_LICENSE.tw_number),
-                             to_number=str('+82')+_setDeCrypto(USER.userPhone),
-                             contents=messageText)
+                             to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                             contents=massage)
+        elif type == "BB":
+            print("BolingerBand")
 
+            massage = ""
+            re = BolingerBand(ticker)
+
+            if re == "BUY":
+                tradeHistory = MY_COINONE.coinone_buy_coin(ticker)
+                massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['currency'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
+            elif re == "SELL":
+                tradeHistory = MY_COINONE.coinone_sell_coin(ticker)
+                massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)"%(tradeHistory['currency'], tradeHistory['sell-qty'], tradeHistory['sell-price'])
+            else:
+                massage = None
+
+            if massage != None:
+                send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                                 auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                                 from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                                 to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                                 contents=massage)
+        elif type == "ST":
+            print("ShortTerm Investment")
+
+            massage = None
+            priceList = get_coinone_price_data()
+            priceData = coinone_get_ma_price(priceList, ticker, 5)
+            print("priceData %s"%(priceData))
+
+            myScheduler = TradeScheduler.objects.filter(schedulerId=USER.mySchedulerId)[0]
+            buy_price = myScheduler.startMoney
+            price = coinone_get_now_price(ticker)
+            print("buy_price %s"%(buy_price))
+            print("price %s"%(price))
+
+            re = ShortTermInvestment(priceData,price,buy_price)
+            print("re : "+re)
+
+            if re == "BUY" :
+                print("=== ShortTermInvestment => [BUY] ===")
+                tradeHistory = MY_COINONE.coinone_buy_coin(ticker,price)
+                massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['currency'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
+                print(massage)
+
+                myScheduler.startMoney = price
+                myScheduler.save()
+            elif re == "SELL" :
+                print("=== ShortTermInvestment => [SELL] ===")
+                tradeHistory = MY_COINONE.coinone_sell_coin(ticker,price,priceData['low'])
+                massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)"%(tradeHistory['currency'], tradeHistory['sell-qty'], tradeHistory['sell-price'])
+                print(massage)
+
+                myScheduler.startMoney = 0.0
+                myScheduler.save()
+
+            elif re == "NONE" :
+                print("=== ShortTermInvestment => [NONE] ===")
+                massage = None
+                print("거래 없음")
+
+            if massage != None:
+                send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                                 auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                                 from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                                 to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                                 contents=massage)
+
+    except Exception as e:
+        print(e)
+
+
+def _testTrading( type, job_id, USER, ticker):
+    try:
+        showTradeStartInfo(job_id)
+
+        MY_LICENSE = APILicense.objects.get(userId=USER)
+
+        if type == "BV" :
+            typeName = "BreakingVolatility"
+            print(typeName)
+            massage = _sellCoin(USER, ticker)
+
+            if _messageLicenseChk(USER):
+                send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                                 auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                                 from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                                 to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                                 contents=massage)
+
+            if BreakingVolatility(ticker):
+                massage = _buyCoin(USER, ticker)
+            else :
+                massage = "BreakingVolatility[Dont Buy]"
+
+            send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                             auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                             from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                             to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                             contents=massage)
+        elif type == "BB":
+            typeName = "BolingerBand"
+            print(typeName)
+            if BolingerBand(ticker):
+                massage = _buyCoin(USER, ticker)
+            else:
+                massage = _sellCoin(USER, ticker)
+
+            send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+                             auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+                             from_number=_setDeCrypto(MY_LICENSE.tw_number),
+                             to_number=str('+82') + _setDeCrypto(USER.userPhone),
+                             contents=massage)
+        # elif type == "ST":
+        #     typeName = "ShortTerm Investment"
+        #     print("가상 단기투자는 구현안했음!!")
+            # priceList = get_coinone_price_data()
+            # priceData = coinone_get_ma_price(priceList, ticker, 5)
+
+
+    except Exception as e:
+        print(e)
+
+def _messageLicenseChk(USER):
+    MY_LICENSE_CHK = APILicense.objects.filter(userId=USER)
+    if MY_LICENSE_CHK:
+        return True
+    else:
+        return False
 
 def _getWallet(userId):
     print("===== GET WALLET =====")
@@ -491,13 +736,13 @@ def _getWallet(userId):
 def _buyCoin(USER, ticker):
     print("===== BUY COIN =====")
     myWallet = _getWallet(USER.userId)
-
     myMonney = myWallet.monney
     buyInfo = kor_buyCalculatePrice(myMonney, ticker)
 
     if buyInfo == 0 :
-        print("You don't but Coin")
-        return False
+        print("You don't buy Coin")
+        massage = "You don't buy Coin"
+        return massage
 
     tradeCount = buyInfo['count']
     tradeBalance = buyInfo['balance']
@@ -511,10 +756,13 @@ def _buyCoin(USER, ticker):
     print("=> tickerQuantity [%s]" % (tradeCount))
     print("=> monney [%s]" % (tradeBalance))
 
+    massage = "[%s] %s개를 매수 하였습니다."%(ticker,tradeCount)
+
     myWallet.save()
     #거래이력생성
     _createTradeHistoty(USER, buyInfo)
 
+    return massage
 
 def _sellCoin(USER, ticker):
     print("===== SELL COIN =====")
@@ -527,7 +775,8 @@ def _sellCoin(USER, ticker):
 
     if sellInfo == 0 :
         print("You don't have Coin")
-        return False
+        massage = "You don't have Coin"
+        return massage
 
     myWallet.ticker = None
     myWallet.tickerQuantity = 0
@@ -538,9 +787,13 @@ def _sellCoin(USER, ticker):
     print("=> tickerQuantity [%s]" % (0))
     print("=> monney [%s]" % (myMonney + sellInfo['price']))
 
+    massage = "[%s] %s개를 매도 하였습니다." % (ticker, myQuantity)
+
     myWallet.save()
     #거래이력생성
     _createTradeHistoty(USER, sellInfo)
+
+    return massage
 
 def _createTradeHistoty(USER, tradeInfo):
     print("CREATE HISTORY USER_ID[%s]"%(USER.userId))

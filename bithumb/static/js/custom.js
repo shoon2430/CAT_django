@@ -1,29 +1,40 @@
-
 const tickerTable = document.querySelector("#ticker_table");
 const tickersName = document.querySelectorAll(".ticker_name ");
 const tickersPrice = document.querySelectorAll(".ticker_price");
 const tickersFiveAvg = document.querySelectorAll(".ticker_fiveAvg");
 const tickersState = document.querySelectorAll(".ticker_state");
 const TICKER = document.querySelector("#ticker");
-
 const ONE_SECONDE = 1000
 
 const ANIMATION = document.querySelector("#animation");
 const ICON = document.querySelector("#animaionIcon");
 const TEXT = document.querySelector("#animaionText");
 
-const START_DAY = document.querySelector("#startDay");
-const END_DAY = document.querySelector("#endDay");
-
-
 const START = document.querySelector("#startBtn");
 const STOP = document.querySelector("#stopBtn");
-const USER_ID = document.querySelector("#userId")
-const USER_NAME = document.querySelector("#userName")
-
+const USER_ID = document.querySelector("#userId");
+const USER_NAME = document.querySelector("#userName");
 
 const SEETING_BOX =  document.querySelector("#programSetting");
 const SETTING = document.querySelector("#settingBtn");
+
+const mddSelect = document.querySelector("#mddSelect");
+const hprSelect = document.querySelector("#hprSelect");
+
+const ticker_name = document.querySelector("#tickerName");
+const price = document.querySelector("#price");
+const up_down = document.querySelector("#updown");
+const mdd = document.querySelector("#mdd");
+const hpr = document.querySelector("#hpr");
+const loaders = document.querySelectorAll(".loader");
+const dataList = document.querySelectorAll(".dataList");
+
+const tradeReal = document.querySelector("#realTradingBtn");
+const tradeTest = document.querySelector("#testTradingBtn");
+
+const BV = document.querySelector("#BV");
+const BB = document.querySelector("#BB");
+const ST = document.querySelector("#ST");
 
 const changeTickersPrice = (resultData) => {
     idx = 0;
@@ -90,13 +101,19 @@ const getUpDownData = () =>{
 const startClick = () =>{
     console.log("startClick!!");
 
+    let type = ""
+    if(BV.checked == true) type = "BV"
+    if(BB.checked == true) type = "BB"
+    if(ST.checked == true) type = "ST"
 
     const sendData =  { 'userId'   : USER_ID.value,
                         'userName' : USER_NAME.value,
                         'ticker'   : TICKER.value == "" ? 'BTC' : TICKER.value,
-                        'startDay' : START_DAY.value,
-                        'endDay'   : END_DAY.value
+                        'kind'     : tradeTest.checked ? "TEST" : "REAL",
+                        'type'     : type
                         };
+
+    console.log(sendData);
 
     setStating();
 
@@ -106,18 +123,18 @@ const startClick = () =>{
         method: 'POST',
         dataType: 'json',
         success: function(data) {
-        console.log('trade END!!');
-        console.log('MAX : '+data.max);
+        console.log('trade START!!');
         }
     });
 }
 
 
 const stopClick = () =>{
-    const sendData =  { 'userId': USER_ID.value,
-                        'userName': USER_ID.value};
-
     console.log("stopClick!!");
+    const sendData =  { 'userId': USER_ID.value,
+                        'userName': USER_ID.value,
+                        'kind'     : tradeTest.checked ? "TEST" : "REAL"
+                        };
 
     ANIMATION.children[1].innerText = "ENDING";
     ANIMATION.children[2].innerText = "Please Wait...";
@@ -159,14 +176,6 @@ const tickerChange = () =>{
         TICKER.classList.remove('setDark');
     }else{
         TICKER.classList.add('setDark');
-
-        const ticker_name = document.querySelector("#tickerName");
-        const price = document.querySelector("#price");
-        const up_down = document.querySelector("#updown");
-        const mdd = document.querySelector("#mdd");
-        const hpr = document.querySelector("#hpr");
-        const loaders = document.querySelectorAll(".loader");
-        const dataList = document.querySelectorAll(".dataList");
 
         $.ajax({
             url:'tickerInfo',
@@ -215,11 +224,93 @@ const tickerChange = () =>{
     }
 }
 
+const getBacktastResult = (obj) =>{
+
+    const TYPE = obj.id.substr(0,3).toUpperCase();
+    console.log(TYPE);
+    let loader = "";
+    let Info = "";
+
+    const sendData = {
+        'ticker' : TICKER.value,
+        'selectType': TYPE,
+        'dateType': obj.value
+    }
+
+    loader = TYPE == "MDD" ?  document.querySelector("#mdd_loader") :  document.querySelector("#hpr_loader") ;
+    Info = TYPE == "MDD" ?  document.querySelector("#mddInfo") :  document.querySelector("#hprInfo") ;
+
+    $.ajax({
+         url:'backTest',
+            data: sendData,
+            method:'POST',
+            dataType:'json',
+            success:function(data) {
+                console.log(data);
+
+                if(TYPE == 'MDD')
+                    mdd.value = data['bt'];
+                else if(TYPE == 'HPR')
+                    hpr.value = data['bt'];
+
+            },beforeSend:function(){
+                loader.classList.remove('hide');
+                Info.classList.add('hide');
+            }
+            ,complete:function(){
+                loader.classList.add('hide');
+                Info.classList.remove('hide');
+            },
+            error:function(request,status,error){
+                alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+            }
+            ,timeout:100000
+
+    })
+}
+
+
+const TEST = document.querySelector("#testBtn");
+
+const testing = () =>{
+    console.log("testBtn CLICKS~");
+
+    let type = ""
+    if(BV.checked == true) type = "BV"
+    if(BB.checked == true) type = "BB"
+    if(ST.checked == true) type = "ST"
+
+    const sendData =  { 'userId'   : USER_ID.value,
+                        'userName' : USER_NAME.value,
+                        'ticker'   : TICKER.value == "" ? 'BTC' : TICKER.value,
+                        'kind'     : tradeTest.checked ? "TEST" : "REAL",
+                        'type'     : type
+                        };
+
+    $.ajax({
+        url:'test',
+        data : sendData,
+        method: 'POST',
+        dataType: 'json',
+        success: function(data) {
+            console.log('TEST POST!!');
+        },
+        error:function(request,status,error){
+            alert("code:"+request.status+"\n"+"message:"+request.responseText+"\n"+"error:"+error);
+        }
+    });
+}
+
 const buttonManageMent = function(){
-    START.addEventListener("click",()=>startClick());
-    STOP.addEventListener("click",()=>stopClick());
-    SETTING.addEventListener("click",()=>settingClick());
-    TICKER.addEventListener("change",()=>tickerChange());
+    START.addEventListener("click",function(){startClick()});
+    STOP.addEventListener("click",function(){stopClick()});
+    SETTING.addEventListener("click",function(){settingClick()});
+    TICKER.addEventListener("change",function(){tickerChange()});
+    mddSelect.addEventListener("change",function(){getBacktastResult(this)});
+    hprSelect.addEventListener("change",function(){getBacktastResult(this)});
+    //테스트용
+    TEST.addEventListener("click",function(){testing()});
+
 }
 
 
@@ -271,25 +362,25 @@ $(function() {
     console.log("coustomJS~");
     const myStatus = document.querySelector("#userStatus")
 
+    tradeTest.checked = true;
+    BV.checked =true;
+
     if(myStatus.value === 'N'){
         setNomal();
     }else if(myStatus.value === 'Y'){
         setStating();
     }
-
-
-
     buttonManageMent();
 
-    $("#startDay").datepicker({
-        uiLibrary: 'bootstrap4'
-    });
+    //실제 사용시 가림
+    TEST.style.display = 'none'
 
-    $("#endDay").datepicker({
-        uiLibrary: 'bootstrap4'
-    });
-
-    //getRealTimeTickersPrice();
-    //getUpDownData();
+//    $("#startDay").datepicker({
+//        uiLibrary: 'bootstrap4'
+//    });
+//
+//    $("#endDay").datepicker({
+//        uiLibrary: 'bootstrap4'
+//    });
 
 })

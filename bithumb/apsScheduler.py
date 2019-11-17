@@ -25,23 +25,41 @@ class Scheduler:
     # type, job_id, USER, function
     def scheduler(self, type, job_id, function, schedulerData):
 
-        USER = schedulerData['USER']
-        ticker = schedulerData['ticker']
-        second = schedulerData['second']
+        USER=""
+        ticker=""
+        second=""
+
+        if len(schedulerData) != 0:
+            USER = schedulerData['USER']
+            ticker = schedulerData['ticker']
+            second = schedulerData['second']
 
         print("{type} Scheduler Start".format(type=type))
-        if type == 'interval':
-            self.sched.add_job(function, type, seconds=10, id=job_id, args=(type, job_id, USER, ticker))
-        elif type == 'cron':
-            self.sched.add_job(function, type,
-                                                 #day_of_week='mon-fri',
-                                                 hour='0',
-                                                 minute='0',
+        if type == 'BV': #변동성돌파
+            print("=== 변동성 돌파 ===")
+            self.sched.add_job(function, 'cron',
+                               # day_of_week='mon-fri',
+                               hour='0',
+                               minute='0',
+                               second=second,
+                               id=job_id, args=(type, job_id, USER, ticker))
+        elif type == 'BB': #볼린저밴드
+            print("=== 볼린저 밴드 ===")
+            self.sched.add_job(function, 'cron', minute='*/5',
                                                  second=second,
                                                  id=job_id, args=(type, job_id, USER, ticker))
+        elif type == 'ST': #단기투자
+            print("=== 단기 투자 ===")
+            self.sched.add_job(function, 'cron', second=second,
+                                                 id=job_id, args=(type, job_id, USER, ticker))
+        if type == 'SAVE': #데이터 수집
+            print("데이터수집 스케쥴러 실행")
+            self.sched.add_job(function, 'cron',
+                               second='*/5',
+                               id=job_id)
 
 
 
-
+# self.sched.add_job(function, type, seconds=10, id=job_id, args=(type, job_id, USER, ticker))
 
 

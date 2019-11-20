@@ -4,6 +4,7 @@ import math
 import httplib2
 import time
 
+import numpy as np
 import pandas as pd
 import simplejson as json
 import base64
@@ -12,7 +13,6 @@ import hashlib
 import requests
 import ast
 import urllib
-
 
 
 class coinone:
@@ -48,15 +48,6 @@ class coinone:
 
         return content
 
-    def coinone_get_price(self,ticker):
-
-        tickerInfo = requests.get('https://api.coinone.co.kr/ticker',{'currency':ticker.lower()}).text
-        json_tickerInfo = json.loads(tickerInfo)
-
-        price = json_tickerInfo['last']
-        return float(price)
-
-
     def _coinone_buy_count(self,price):
 
         url = "v2/account/balance/"
@@ -66,8 +57,8 @@ class coinone:
 
         r = self._get_response(action=url, payload=payload)
         json_r = json.loads(r)
-        krw = float(json_r['krw']['balance'])
 
+        krw = float(json_r['krw']['balance'])
         unit = krw / price
         unit = math.floor(unit * 10000) / 10000
 
@@ -91,16 +82,67 @@ class coinone:
         return 0.0
 
 
-    def coinone_buy_coin(self,ticker="BTC",price=-1):
+    def coinone_buy_coin(self,ticker, price=-1):
+        massage = ""
 
-        url = "v2/order/limit_buy"
+        # 가격값을 받아오지않은경우 현재 시세가로 측정
+        if price == -1:
+            price = coinone_get_now_price(ticker)
 
-        price = price
-        if price == -1 :
-            price = self.coinone_get_price(ticker)
+        # 채결되지 않은 거래가 있는지 확인
+        limitOrders = self.coinone_my_orders(ticker)
 
+        # 채결되지않은 거래가 있을겨우 취소
+        if limitOrders != "N":
+            for limitOrder in limitOrders:
+                self.coinone_cancel_order(ticker, limitOrder)
+
+        # 살수 있는 최대의 갯수
         qty = self._coinone_buy_count(price)
+        # 판매가 리스트 구하기
+        orderbook = coinone_get_orderbook("BTC")
+        askList = orderbook['ask']
 
+        # krw가 있을경우만 구매
+        if qty > 0.0 or qty > 0 :
+            for ask in askList:
+                # 판매하는갯수가 사려는갯수보다 많은경우
+                if float(ask['qty']) >= qty:
+                    # 판매가격이 현재가격보다 클경우 판매가격으로 구매해야 바로 거래됨
+                    if float(ask['price']) > price:
+                        price = float(ask['price'])
+                        qty = self._coinone_buy_count(price)
+
+                    # 가장 최근의 판매가로 구매
+                    self._send_buy_signal(price,qty,ticker)
+
+                # 구매주문이 바로 체결되지않을경우 취소 후 다음 판매가 확인
+                limitOrders = self.coinone_my_orders(ticker)
+                if limitOrders != "N":
+                    for limitOrder in limitOrders:
+                        self.coinone_cancel_order(ticker, limitOrder)
+                        print("==>> BUY order cancel")
+
+                # 체결되지않은 주문이 없을경우 거래 완료
+                elif limitOrders  =='N':
+                    print(" 구매 완료 ")
+                    break;
+        else :
+            price = '0'
+            qty = '0'
+            massage = "보유하신 KRW가 없습니다."
+
+        tradeHistory = {
+            'currency': str(ticker),
+            'buy-price': str(price),
+            'buy-qty': str(qty),
+            'massage' : massage,
+        }
+
+        return tradeHistory
+
+    def _send_buy_signal(self,price,qty,ticker):
+        url = "v2/order/limit_buy"
         payload = {
             'access_token': self.ACCESS_TOKEN,
             'price': price,
@@ -108,52 +150,91 @@ class coinone:
             'currency': ticker
         }
 
-        r = self._get_response(action=url,payload=payload)
+        r = self._get_response(action=url, payload=payload)
         json_r = json.loads(r)
+        print(json_r)
         self.orderId = json_r['orderId']
 
-        tradeHistory = {
-            'currency': str(ticker),
-            'buy-price': str(price),
-            'buy-qty': str(qty),
-        }
-        return tradeHistory
+        if json_r['errorCode'] == '0':
+            print("매수 성공 ( %s )" % (json_r))
+
 
     def coinone_sell_coin(self,ticker,price=-1, low=-1):
-        url = "v2/order/limit_sell"
+        massage = ""
+
+        # 가격값을 받아오지않은경우 현재 시세가로 측정
+        if price == -1:
+            price = coinone_get_now_price(ticker)
+
+        # 완료되지않은 거래가 있는지 확인
+        limitOrders = self.coinone_my_orders(ticker)
+
+        # 채결되지않은 거래가 있을겨우 취소
+        if limitOrders != "N":
+            for limitOrder in limitOrders:
+                self.coinone_cancel_order(ticker, limitOrder)
+
+        # 내가가진 코인 갯수 획득
         qty = self._coinone_sell_count(ticker)
         qty = math.floor(qty * 10000) / 10000
 
-        price = price
-        if price == -1:
-            price = self.coinone_get_price(ticker)
-        elif price != -1 and low != -1 :
-            price =  math.trunc(price+low/2)
+        # 구매가 리스트
+        orderbook = coinone_get_orderbook("BTC")
+        bidList = orderbook['bid']
 
-        print(price, qty)
+        # ticker가 있을경우만 판매
+        if qty > 0.0 or qty > 0:
+            for bid in bidList:
+                # 구매하려는 갯수가 판매하려는 갯수보다 많은경우
+                if float(bid['qty']) >= qty:
+                    # 구매하려는 가격보다 현재가격이 큰경우 구매가격으로 팔아야함
+                    if price > float(bid['price']) :
+                        price = float(bid['price'])
 
-        if qty > 0.0 :
-            payload = {
-                'access_token': self.ACCESS_TOKEN,
-                'price': price,
-                'qty': qty,
-                'currency': ticker
-            }
+                    self._send_sell_signal(price,qty,ticker)
 
-            r = self._get_response(action=url,payload=payload)
-            json_r = json.loads(r)
-            self.orderId = json_r['orderId']
-            print(json_r)
+                limitOrders = self.coinone_my_orders(ticker)
+                if limitOrders != "N":
+                    for limitOrder in limitOrders:
+                        self.coinone_cancel_order(ticker, limitOrder)
+                        print("==>> SELL order cancel")
+
+                elif limitOrders  =='N':
+                    print(" 판매 완료 ")
+                    break;
+        else :
+            price = '0'
+            qty = '0'
+            massage = "보유하신 "+str(ticker)+"가 없습니다."
 
         tradeHistory = {
             'currency': str(ticker),
             'sell-price': str(price),
             'sell-qty': str(qty),
+            'massage' : massage,
         }
         return tradeHistory
 
-    def coinone_my_orders(self, ticker):
+    def _send_sell_signal(self,price,qty,ticker):
+        url = "v2/order/limit_sell"
+        payload = {
+            'access_token': self.ACCESS_TOKEN,
+            'price': price,
+            'qty': qty,
+            'currency': ticker
+        }
 
+        r = self._get_response(action=url, payload=payload)
+        json_r = json.loads(r)
+        print(json_r)
+        self.orderId = json_r['orderId']
+
+        if json_r['errorCode'] == '0':
+            print("매도 성공 ( %s )" % (json_r))
+
+    def coinone_my_orders(self, ticker):
+        print("=== coinone_my_orders ===")
+        print("===                   ===")
         url = "v2/order/limit_orders"
         payload = {
             'access_token': self.ACCESS_TOKEN,
@@ -162,6 +243,11 @@ class coinone:
 
         r = self._get_response(action=url, payload=payload)
         json_r = json.loads(r)
+        print(json_r)
+        print(len(json_r['limitOrders']))
+        if len(json_r['limitOrders']) == 0:
+            return "N"
+
         return json_r['limitOrders']
 
     def coinone_my_complete_orders(self, ticker):
@@ -175,8 +261,9 @@ class coinone:
         json_r = json.loads(r)
         return json_r
 
-    def coinone_cacel_order(self, ticker, order):
-
+    def coinone_cancel_order(self, ticker, order):
+        print("=== coinone_cacel_order ===")
+        print("===                     ===")
         is_ask = 0
         if order['type'] == "ask":
             is_ask=1
@@ -196,6 +283,16 @@ class coinone:
         print(json_r)
 
 
+def coinone_get_orderbook(ticker):
+    tickerInfo = requests.get('https://api.coinone.co.kr/orderbook', {'currency': ticker.lower()}).text
+    json_tickerInfo = json.loads(tickerInfo)
+
+    data ={
+        'ask': json_tickerInfo['ask'],
+        'bid': json_tickerInfo['bid']
+    }
+    return data
+
 def coinone_get_now_price(ticker):
 
     tickerInfo = requests.get('https://api.coinone.co.kr/ticker',{'currency':ticker.lower()}).text
@@ -203,6 +300,7 @@ def coinone_get_now_price(ticker):
 
     price = json_tickerInfo['last']
     return float(price)
+
 
 class coinoneSave:
     def __init__(self,name):
@@ -244,9 +342,11 @@ class coinoneSave:
 
 def coinone_get_ma_price(priceList,ticker="BTC",minute=5):
     print("=== coinone_get_ma_price ===")
-    minuteRate = minute*12
+    #minuteRate = minute*12*60
+    # 3초마다 데이터를 받기때문에 1분은 20개
+    minuteRate = minute*20
     df = pd.DataFrame(priceList)
-    k=10
+    k=2
 
     if ticker == "BTC":
         df['ma'] = df['BTC'].rolling(window=minuteRate).mean()
@@ -254,70 +354,70 @@ def coinone_get_ma_price(priceList,ticker="BTC",minute=5):
         df['low'] = df['BTC'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "ETH":
         df['ma'] = df['ETH'].rolling(window=minuteRate).mean()
-        df['high'] = df['ETH'].max()
-        df['low'] = df['ETH'].min()
+        df['high'] = df['ETH'].rolling(window=minuteRate).max()
+        df['low'] = df['ETH'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "XRP":
         df['ma'] = df['XRP'].rolling(window=minuteRate).mean()
-        df['high'] = df['XRP'].max()
-        df['low'] = df['XRP'].min()
+        df['high'] = df['XRP'].rolling(window=minuteRate).max()
+        df['low'] = df['XRP'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "BCH":
         df['ma'] = df['BCH'].rolling(window=minuteRate).mean()
-        df['high'] = df['BCH'].max()
-        df['low'] = df['BCH'].min()
+        df['high'] = df['BCH'].rolling(window=minuteRate).max()
+        df['low'] = df['BCH'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "LTC":
         df['ma'] = df['LTC'].rolling(window=minuteRate).mean()
-        df['high'] = df['LTC'].max()
-        df['low'] = df['LTC'].min()
+        df['high'] = df['LTC'].rolling(window=minuteRate).max()
+        df['low'] = df['LTC'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "EOS":
         df['ma'] = df['EOS'].rolling(window=minuteRate).mean()
-        df['high'] = df['EOS'].max()
-        df['low'] = df['EOS'].min()
+        df['high'] = df['EOS'].rolling(window=minuteRate).max()
+        df['low'] = df['EOS'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "BSV":
         df['ma'] = df['BSV'].rolling(window=minuteRate).mean()
-        df['high'] = df['BSV'].max()
-        df['low'] = df['BSV'].min()
+        df['high'] = df['BSV'].rolling(window=minuteRate).max()
+        df['low'] = df['BSV'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "XLM":
         df['ma'] = df['XLM'].rolling(window=minuteRate).mean()
-        df['high'] = df['XLM'].max()
-        df['low'] = df['XLM'].min()
+        df['high'] = df['XLM'].rolling(window=minuteRate).max()
+        df['low'] = df['XLM'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
     elif ticker == "TRX":
         df['ma'] = df['TRX'].rolling(window=minuteRate).mean()
-        df['high'] = df['TRX'].max()
-        df['low'] = df['TRX'].min()
+        df['high'] = df['TRX'].rolling(window=minuteRate).max()
+        df['low'] = df['TRX'].rolling(window=minuteRate).min()
         df['upper'] = df['ma'] + k * df['high'].rolling(window=minuteRate).std()
         df['lower'] = df['ma'] - k * df['low'].rolling(window=minuteRate).std()
+        df['up-lo'] = abs(df['upper'] - df['lower'])
 
-    data = {
-        'ma': float(df.tail(1)['ma']),
-        'high': float(df.tail(1)['high']),
-        'low' : float(df.tail(1)['low']),
-        'upper' : float(df.tail(1)['upper']),
-        'lower': float(df.tail(1)['lower']),
-    }
-    print(data)
-
-    return data
+    return df

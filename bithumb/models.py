@@ -44,6 +44,7 @@ class TradeHistory(models.Model):
 class TradeScheduler(models.Model):
     userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)
     schedulerId = models.CharField(max_length=300, blank=True)
+    schedulerKind = models.CharField(max_length=100)
     startTime = models.DateTimeField(default=timezone.now)
     endTime = models.DateTimeField(default=timezone.now)
     ticker = models.CharField(max_length=100)
@@ -56,6 +57,31 @@ class TradeScheduler(models.Model):
     def __str__(self):
         return str(self.schedulerId)
 
+class ShortTermScheduler(models.Model):
+    schedulerId = models.ForeignKey(TradeScheduler, null=True, on_delete=models.CASCADE)
+    tradeType = models.CharField(max_length=50)
+    tradePrice = models.IntegerField(default = 0)
+    tradeCount = models.FloatField(default=0)
+    firstBuyPrice = models.IntegerField(default = 0)
+    upperCount = models.IntegerField(default = 0)
+    lowerCount = models.IntegerField(default = 0)
+    checkCount = models.IntegerField(default = 0)
+
+    def __str__(self):
+        return str(self.schedulerId)
+
+    def getSTData(self):
+        data ={
+            'schedulerId': self.schedulerId,
+            'tradeType'  :self.tradeType,
+            'tradePrice' : self.tradePrice,
+            'tradeCount' : self.tradeCount,
+            'firstBuyPrice' : self.firstBuyPrice,
+            'upperCount' : self.upperCount,
+            'lowerCount' : self.lowerCount,
+            'checkCount' :self.checkCount,
+        }
+        return data
 
 class Wallet(models.Model):
     userId = models.ForeignKey(ProgramUser, null=True, on_delete=models.CASCADE)

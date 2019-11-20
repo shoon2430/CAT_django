@@ -373,7 +373,7 @@ $(function() {
     buttonManageMent();
 
     //실제 사용시 가림
-    TEST.style.display = 'none'
+    //TEST.style.display = 'none'
 
 //    $("#startDay").datepicker({
 //        uiLibrary: 'bootstrap4'

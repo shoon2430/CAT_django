@@ -61,3 +61,89 @@ from bithumb.coinone_api import *
 #
 # massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['curreny'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
 # print(massage)
+
+
+
+# import requests
+# import json
+#
+#
+# def get_sell_buy_rate(ticker):
+#     tickerInfo = requests.get('https://api.coinone.co.kr/orderbook', {'currency': ticker.lower()}).text
+#     json_tickerInfo = json.loads(tickerInfo)
+#     asks = json_tickerInfo['ask']
+#     bids = json_tickerInfo['bid']
+#
+#     ask_price =0.0
+#     ask_qty =0.0
+#     for ask in asks:
+#         ask_price = ask_price + float(ask['price'])
+#         ask_qty  = ask_qty + float(ask['qty'])
+#
+#     C = coinone("T","B")
+#     p = C.coinone_get_price('BTC')
+#     print(p)
+#
+#     # 매도가
+#     print("=== ask ===")
+#     print("PRICE : %s "%(ask_price/len(asks)))
+#     print("QTY : %s" %(ask_qty))
+#
+#     bid_price = 0.0
+#     bid_qty = 0.0
+#     for bid in bids:
+#         bid_price = bid_price + float(bid['price'])
+#         bid_qty  = bid_qty + float(bid['qty'])
+#
+#     # 매수가
+#     print("=== bid ===")
+#     print("PRICE : %s "%(bid_price/len(bids)))
+#     print("QTY : %s" %(bid_qty))
+#
+# get_sell_buy_rate("BTC")
+
+
+# a={'A':[1,2,3],'B':[2,22,222],'C':[33,34,35]}
+#
+# df = pd.DataFrame(a)
+# print(df)
+# print(df.iloc[-2:-1]['B'])
+
+
+# def coinone_get_orderbook(ticker):
+#     tickerInfo = requests.get('https://api.coinone.co.kr/orderbook', {'currency': ticker.lower()}).text
+#     json_tickerInfo = json.loads(tickerInfo)
+#
+#     data ={
+#         'ask': json_tickerInfo['ask'],
+#         'bid': json_tickerInfo['bid']
+#     }
+#
+#     return data
+#
+# print(coinone_get_orderbook("BTC"))
+#
+# data = coinone_get_orderbook("BTC")
+# askList = data['ask'] #판매가
+# bidList = data['bid'] #구매가
+#
+# def now_buy(bidList, qty):
+#
+#     for bid in bidList:
+#         if bid['qty'] >= qty :
+#             price = float(bid['price'])
+#             print("buy")
+#
+#         if limitOrders != "N":
+#             print("BUY - limitOrders is OK")
+#             for limitOrder in limitOrders:
+#                 print(limitOrder['orderId'])
+#                 self.coinone_cancel_order(ticker, limitOrder)
+#                 print("BUY - limitOrders is CANCEL")
+#
+#
+# now_buy(askList)
+#
+
+
+

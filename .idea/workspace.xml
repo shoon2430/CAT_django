@@ -2,19 +2,15 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="693f1ecc-4edb-4c5a-b565-47b75d0c67db" name="Default Changelist" comment="">
-      <change afterPath="$PROJECT_DIR$/bithumb/coinone_api.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/bithumb/tradeType.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/admin.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/admin.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/apsScheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/apsScheduler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bithumb/bithumb_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/bithumb_api.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bithumb/korbit_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/korbit_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/coinone_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/coinone_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/static/js/custom.js" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/js/custom.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/tests.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bithumb/trendFigures.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/trendFigures.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bithumb/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/tradeType.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/tradeType.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/views.py" afterDir="false" />
     </list>
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -43,7 +39,7 @@
     <property name="DefaultHtmlFileTemplate" value="HTML File" />
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/../../cat/CAT_django" />
-    <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">

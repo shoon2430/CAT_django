@@ -103,80 +103,207 @@ def BolingerBand( ticker, n=20, k=2):
 def get_upper_rating(now, target):
     return (now -target) /target
 
-def ShortTermInvestment(priceData,price, buy_price):
-    print("=== ShortTermInvestment ===")
-    price_ma = priceData['ma']
-    price_high = priceData['high']
-    price_low = priceData['low']
-    price_upper = priceData['upper']
-    price_lower = priceData['lower']
+def ShortTermInvestment(priceDataFrame,price, stData):
+    print("== ------------------------------ ==")
+    print("===      ShortTermInvestment     ===")
+    print("== ------------------------------ ==")
 
-    print('===[ price                              ]===')
-    print("===                 %s" % (str(price)))
-    print('===[ price_ma                           ]===')
-    print("===                 %s" % (str(price_ma)))
-    print('===[ price_high                         ]===')
-    print("===                 %s" % (str(price_high)))
-    print('===[ price_low                          ]===')
-    print("===                 %s" % (str(price_low)))
-    print('===[ price_upper                         ]===')
-    print("===                 %s" % (str(price_upper)))
-    print('===[ price_lower                          ]===')
-    print("===                 %s" % (str(price_lower)))
+    price_ma = float(priceDataFrame.tail(1)['ma'])
+    price_high = float(priceDataFrame.tail(1)['high'])
+    price_low = float(priceDataFrame.tail(1)['low'])
+    price_upper = float(priceDataFrame.tail(1)['upper'])
+    price_lower = float(priceDataFrame.tail(1)['lower'])
+    upper_lower =  float(priceDataFrame.tail(1)['up-lo'])
+    be_upper_lower = float(priceDataFrame.iloc[-2:-1]['up-lo'])
 
-    if buy_price == 0.0 :
-        print("ST - FIRST")
+    data = {
+        'tradePrice':[stData['tradePrice']],
+        'tradeCount': [stData['tradeCount']],
+        'firstBuyPrice': [stData['firstBuyPrice']],
+        'upperCount': [stData['upperCount']],
+        'lowerCount': [stData['lowerCount']],
+        'checkCount': [stData['checkCount']],
+    }
+
+    print("==         현재 스케쥴러 정보      ==")
+    st_df = pd.DataFrame(data)
+    print(st_df)
+    print("== ------------------------------ ==")
+    show ={
+        'buy_price' : [str(stData['firstBuyPrice'])],
+        'now_pirce':[str(price)],
+        'ma5': [str(price_ma)],
+        'high' : [str(price_high)],
+        'low': [str(price_low)],
+        'upper': [str(price_upper)],
+        'lower' : [str(price_lower)],
+    }
+
+    price_df = pd.DataFrame(show)
+    print("==           현재 가격 정보        ==")
+    print(price_df)
+    print("== ------------------------------ ==")
+
+    BUY_FULL_STACK = 3
+    BUY_RESET_STACK =6
+    SELLFULL_STACK =3
+    CHECK_FULL_STACK = 3
+
+
+    # 밴드폭이 점점 커질경우
+
+
+    if stData['firstBuyPrice'] == 0.0 or stData['firstBuyPrice'] == 0 :
+        print("== 단기투자 알고리즘 - FIRST START ==")
+        print("== ------------------------------ ==")
+
         # 5분 이동평균보다 현재가가 높은경우
-        if price > price_ma :
-            print("ck SF - BUY %s"%(price_ma + (price_ma * 0.001)))
+        print("==   밴드 최대값  vs 현재가 비교   ==")
+        print("== ------------------------------ ==")
+        if price > price_upper :
+            print("==  밴드 최대값 보다 현재가가 높음  ==")
+            print("==>  price : %s   ||   price_upper : %s   =="%(price,price_upper))
+            print("== ------------------------------ ==")
+
+            # print("ck SF - BUY %s"%(price_ma + (price_ma * 0.001)))
             # if price > (price_ma + (price_ma * 0.001)):
-            if price > price_ma:
-                print("SF - BUY")
-                return "BUY"
+            print("==        밴드폭 상승 체크         ==")
+            print("== ------------------------------ ==")
+            if upper_lower > be_upper_lower:
+                print("==          밴드폭 상승중!!        ==")
+                print("==  be_upper_lower : %s   ||   upper_lower : %s   =="%(be_upper_lower,upper_lower))
+                print("== ------------------------------ ==")
+
+                print("==        상승 카운트 체크         ==")
+                print("== ------------------------------ ==")
+                if stData['upperCount'] == BUY_FULL_STACK:
+                    print("==▶▶▶▶▶▶ 매    수 ◀◀◀◀◀◀==")
+                    print("== ------------------------------ ==")
+                    return "BUY"
+
+                else :
+                    print("==↑ ↑ ↑ ↑ 상승 카운트 증가 ↑ ↑ ↑ ↑ ==")
+                    print("== ------------------------------ ==")
+                    return "BUY_UP"
+
             else:
-                print("SF - NONE")
-                return "NONE"
-        elif price < price_lower:
-            print("SF - SELL NONE")
-            return "NONE"
-        else :
-            print("SF - NONE")
-            return "NONE"
-    else:
-        print("ST - AGAIN")
-        if price > buy_price:
-            # 아직 가격상승 진행중
-            rate = get_upper_rating(price, buy_price)
-            print("rate : %s" % (rate))
-            if rate > 0.0015:
-                # 0.15%상승되면 팔음 (더이상0.05수익)
-                print("SA - SELL")
-                return "SELL"
-            else :
-                # 다음번까지 기다림
-                print("SA - NONE")
+                print("==        밴드폭 상승 실패         ==")
+                print("==  be_upper_lower : %s   ||   upper_lower : %s   ==" % (be_upper_lower, upper_lower))
+                print("== ------------------------------ ==")
                 return "NONE"
 
-        elif buy_price > price:
-            # 샀던가격보다 하락중임
-            rate = get_upper_rating(buy_price, price)
-            print("rate : %s"%(rate))
-            if rate > 0.0015:
-                #0.15%하락되면 팔음 (더이상 손해방지)
-                print("SA - SELL")
-                return "SELL"
-            else :
-                # 오를수도 있으니 다음번까지 대기
-                print("SA-NONE")
-                return "NONE"
-        elif price < price_lower:
-            print("SA-SELL")
-            return "SELL"
         else :
-            print("SA - NONE")
-            return "NONE"
+            print("==  밴드 최대값 보다 현재가가 낮음  ==")
+            print("== ------------------------------ ==")
+
+            if stData['upperCount'] != 0:
+                if stData['checkCount'] == BUY_RESET_STACK:
+                    print("==        상승 카운트 초기화       ==")
+                    print("== ------------------------------ ==")
+
+                    return "BUY_RESET"
+                else :
+                    print("==↑ ↑ ↑ ↑ 하락 카운트 증가 ↑ ↑ ↑ ↑ ==")
+                    print("== ------------------------------ ==")
+                    return "CHECK_UP"
+            else :
+                return "NONE"
+    else:
+        print("== 단기투자 알고리즘 구매한COIN존재 ==")
+        print("== ------------------------------ ==")
+
+        print("==   밴드 최대값  vs 현재가 비교   ==")
+        print("== ------------------------------ ==")
+        if price_upper > price:
+            print("==  밴드 최대값 보다 현재가가 낮음  ==")
+            print("==>  price_upper : %s   ||   price : %s   ==" % (price_upper, price))
+            print("== ------------------------------ ==")
+
+            if stData['checkCount'] >= CHECK_FULL_STACK:
+                print("==     상승 유지후 하락시 매도     ==")
+                print("== checkCount : %s  =="%(stData['checkCount']))
+                print("== ------------------------------ ==")
+
+                print("==◀◀◀◀◀◀ 매    도 ▶▶▶▶▶▶==")
+                print("== ------------------------------ ==")
+                return "SELL"
+
+            else:
+                print("==   이동편균선  vs  현재가 비교   ==")
+                print("== ------------------------------ ==")
+                if price_ma >= price:
+                    print("==     이동편균선보다 현재가 작음   ==")
+                    print("==>  MA5 : %s   ||   price : %s   ==" % (price_ma, price))
+                    print("== ------------------------------ ==")
+
+                    print("==◀◀◀◀◀◀ 매    도 ▶▶▶▶▶▶==")
+                    print("== ------------------------------ ==")
+                    return "SELL"
+
+                else :
+                    print("==     이동편균선보다 현재가 높음   ==")
+                    print("==>  MA5 : %s   ||   price : %s   ==" % (price_ma, price))
+                    print("== ------------------------------ ==")
+
+                    print("==        하락 카운트 체크         ==")
+                    print("== ------------------------------ ==")
+                    if stData['lowerCount'] == SELLFULL_STACK:
+                        print("==◀◀◀◀◀◀ 매    도 ▶▶▶▶▶▶==")
+                        print("== ------------------------------ ==")
+                        return "SELL"
+
+                    else:
+                        print("==↓ ↓ ↓ ↓ 하락 카운트 증가 ↓ ↓ ↓ ↓ ==")
+                        print("== ------------------------------ ==")
+                        return "SELL_UP"
+        else :
+            print("==  밴드 최대값 보다 현재가가 높음  ==")
+            print("==>  UPPER : %s   ||   price : %s   ==" % (price_upper, price))
+            print("== ------------------------------ ==")
+
+            print("==------- 유지 카운트 증가 ------- ==")
+            print("== ------------------------------ ==")
+            return "CHECK_UP"
+
+
 
     return "NONE"
+
+
+def testshow(df):
+    fig = plt.figure(figsize=(10,10))
+    ax_main = fig.add_subplot(1,1,1)
+
+    ax_main.set_xlabel('Date')
+    print("2")
+    #
+
+    ax_main.plot(df.index, df['high'],'r', label="High")
+    ax_main.plot(df.index, df['low'],'b', label="Low")
+    ax_main.plot(df.index, df['ma'],'r',label="ma5")
+    ax_main.plot(df.index, df['upper'],'c',label="upper")
+    ax_main.plot(df.index, df['lower'],'c',label="lower")
+    # ax_main.plot(df.index, x,label="x")
+
+    # ax_main.plot(df.index, df['up-lo'], 'b', label="up to lo")
+    # ax_main.plot(df.index, df['up-lo-ma'], 'b', label="up to lo ma")
+
+
+    #
+    # ax_main.plot(df.index, df['ma15'],'b', label="ma15")
+    # ax_main.plot(df.index, df['high15'],'r', label="High")
+    # ax_main.plot(df.index, df['low15'],'b', label="Low")
+    # ax_main.plot(df.index, df['upper15'],'m', label="upper15")
+    # ax_main.plot(df.index, df['lower15'],'m',label="lower15")
+
+
+    ax_main.plot(df.index, df['BTC'],'k', label="BTC")
+    ax_main.set_title("coinOne",fontsize=22)
+    ax_main.set_xlabel('Date')
+
+    ax_main.legend(loc='best')
+    plt.grid()
+    plt.show()
 
 # p = 9957000
 # m = 9955266.666666666

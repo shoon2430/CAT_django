@@ -14,7 +14,7 @@ from bithumb.trendFigures import NaverTrend
 from bithumb.AESCipher import AESCIPER
 from bithumb.tradeType import *
 
-from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet, APILicense,TickerPrice
+from bithumb.models import ProgramUser,TradeHistory,TradeScheduler,Wallet, APILicense,TickerPrice, ShortTermScheduler
 
 import hashlib
 import math
@@ -25,12 +25,22 @@ import time
 from django.conf import settings
 from django.contrib.sessions.middleware import  SessionMiddleware
 
+
+mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
+
 COINONE = coinoneSave(name="COINONE")
+tickers = kor_get_main_tickers()
+getDataScheduler = Scheduler()
 
 #코인원 데이터 수집
 # 5분간 이동평균데이터를 만들기위해
 def save_coinone_price_data():
     try:
+        now = str(time.localtime().tm_hour) + ":" \
+              + str(time.localtime().tm_min) + ":" \
+              + str(time.localtime().tm_sec)
+        #print("=> GETTING DATA DON'T STOP PLEASE!! :: %s ::" %(now))
+
         COINONE._coinone_save_price()
 
         TickerPrice.objects.create(
@@ -45,10 +55,14 @@ def save_coinone_price_data():
             XLM=COINONE.XLM,
             TRX=COINONE.TRX,
         )
+
         allPrice = TickerPrice.objects.all()
         # 12*60*2= 2시간정도의 데이터 수집
         # 이후데이터는 삭제
-        if len(allPrice) > 1440:
+
+
+
+        if len(allPrice) > 3600: #1440:
             allPrice[0].delete()
             # print("DELETE")
 
@@ -100,9 +114,34 @@ def testing(request):
 
         # USER = ProgramUser.objects.get(userId=userId)
         # _realTrading(type=type,job_id="TEST",USER=USER,ticker=ticker)
-        tickers = kor_get_main_tickers()
+        #
+        # priceList = get_coinone_price_data()
+        # priceData = coinone_get_ma_price(priceList, ticker, 5)
+        # print(priceData)
+        # testshow(priceData)
+        #
+        # USER = ProgramUser.objects.get(userId=userId)
+        # MY_LICENSE = APILicense.objects.get(userId=USER)
+        # MY_COINONE = coinone(_setDeCrypto(MY_LICENSE.bit_publicKey), _setDeCrypto(MY_LICENSE.bit_privateKey))
+        #
+        # myScheduler = TradeScheduler.objects.filter(schedulerId=USER.mySchedulerId)
+        # print( len(myScheduler) )
+        #
+        # price = coinone_get_now_price(ticker)
+        # #
+        # print("price     = > %s"%(price))
+        # #
+        # print("start -test1")
+        # his = MY_COINONE.coinone_buy_coin(ticker, price)
+        # print(his)
+        #
+        # time.sleep(10)
+        #
+        # print("start -test2")
+        # his2 = MY_COINONE.coinone_sell_coin(ticker, price)
+        # print(his2)
 
-        scheduler.scheduler("SAVE", "coinone-data-save", save_coinone_price_data, {})
+        getDataScheduler.scheduler("SAVE", "coinone-data-save", save_coinone_price_data, {})
 
         # priceList = get_coinone_price_data()
         # priceData = coinone_get_ma_price(priceList, ticker, 5)
@@ -116,12 +155,6 @@ def testing(request):
 
     except Exception as e:
         print(e)
-
-
-
-mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
-tickers = kor_get_main_tickers()
-scheduler = Scheduler()
 
 def _setCrypto(data):
     crypto_data = AESCIPER(bytes(mykey)).encrypt(data)
@@ -454,9 +487,15 @@ def startTrading(request):
 
             TradeScheduler.objects.create(userId= USER,
                                           schedulerId= newSchedulerId,
+                                          schedulerKind=tradeKind,
                                           ticker=ticker,
                                           startMoney=startMoney,
                                           startTickerQuantity=startTickerQuantity)
+
+            if tradeType == 'ST':
+                ShortTermScheduler.objects.create(schedulerId=TradeScheduler.objects.filter(schedulerId= newSchedulerId)[0])
+                print(" CREATE ShortTermScheduler")
+
             print("========== CREATE FIRST myScheduler ========== ")
 
             # 사용자에게 스케쥴러 정보 등록
@@ -559,8 +598,6 @@ def _realTrading( type, job_id, USER, ticker):
         showTradeStartInfo(job_id)
 
         MY_LICENSE = APILicense.objects.get(userId=USER)
-        print(_setDeCrypto(MY_LICENSE.bit_publicKey))
-        print(_setDeCrypto(MY_LICENSE.bit_privateKey))
         MY_COINONE = coinone(_setDeCrypto(MY_LICENSE.bit_publicKey), _setDeCrypto(MY_LICENSE.bit_privateKey))
 
         if type == "BV" :
@@ -618,17 +655,22 @@ def _realTrading( type, job_id, USER, ticker):
 
             massage = None
             priceList = get_coinone_price_data()
-            priceData = coinone_get_ma_price(priceList, ticker, 5)
-            print("priceData %s"%(priceData))
+            priceDataFrame = coinone_get_ma_price(priceList, ticker, 5)
+            # print("priceData %s"%(priceData))
 
             myScheduler = TradeScheduler.objects.filter(schedulerId=USER.mySchedulerId)[0]
-            buy_price = myScheduler.startMoney
-            price = coinone_get_now_price(ticker)
-            print("buy_price %s"%(buy_price))
-            print("price %s"%(price))
+            print("ST - get myScheduler")
+            ST = ShortTermScheduler.objects.get(schedulerId=myScheduler)
+            print("ST - get ShortTermScheduler")
 
-            re = ShortTermInvestment(priceData,price,buy_price)
-            print("re : "+re)
+            stData = ST.getSTData()
+
+            price = coinone_get_now_price(ticker)
+            # print("buy_price %s"%(buy_price))
+            # print("price %s"%(price))
+
+            re = ShortTermInvestment(priceDataFrame,price,stData)
+            # print("re : "+re)
 
             if re == "BUY" :
                 print("=== ShortTermInvestment => [BUY] ===")
@@ -636,16 +678,47 @@ def _realTrading( type, job_id, USER, ticker):
                 massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['currency'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
                 print(massage)
 
-                myScheduler.startMoney = price
-                myScheduler.save()
+                if ST.firstBuyPrice ==0 :
+                    ST.firstBuyPrice = price
+                    ST.tradePrice = price
+                else :
+                    ST.tradePrice = price
+                ST.tradeType = "BUY"
+                ST.upperCount = 0
+                ST.lowerCount = 0
+                ST.checkCount = 0
+                ST.save()
             elif re == "SELL" :
                 print("=== ShortTermInvestment => [SELL] ===")
-                tradeHistory = MY_COINONE.coinone_sell_coin(ticker,price,priceData['low'])
+                tradeHistory = MY_COINONE.coinone_sell_coin(ticker,price,float(priceDataFrame.tail(1)['low']))
                 massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)"%(tradeHistory['currency'], tradeHistory['sell-qty'], tradeHistory['sell-price'])
                 print(massage)
 
-                myScheduler.startMoney = 0.0
-                myScheduler.save()
+                ST.tradeType = "SELL"
+                ST.firstBuyPrice = 0
+                ST.tradePrice = tradeHistory['sell-price']
+                ST.upperCount = 0
+                ST.lowerCount = 0
+                ST.checkCount = 0
+                ST.save()
+
+            elif re == "BUY_UP":
+                ST.upperCount = ST.upperCount+1
+                ST.save()
+            elif re == "SELL_UP":
+                ST.lowerCount = ST.lowerCount + 1
+                ST.save()
+            elif re == "CHECK_UP":
+                ST.checkCount = ST.checkCount + 1
+                ST.save()
+            elif re == "BUY_RESET":
+                ST.upperCount = 0
+                ST.checkCount = 0
+                ST.save()
+            elif re == "SELL_RESET":
+                ST.lowerCount = 0
+                ST.checkCount = 0
+                ST.save()
 
             elif re == "NONE" :
                 print("=== ShortTermInvestment => [NONE] ===")

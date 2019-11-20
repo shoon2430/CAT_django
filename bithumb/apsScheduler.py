@@ -50,16 +50,10 @@ class Scheduler:
                                                  id=job_id, args=(type, job_id, USER, ticker))
         elif type == 'ST': #단기투자
             print("=== 단기 투자 ===")
-            self.sched.add_job(function, 'cron', second=second,
+            self.sched.add_job(function, 'cron', second='10',
                                                  id=job_id, args=(type, job_id, USER, ticker))
         if type == 'SAVE': #데이터 수집
             print("데이터수집 스케쥴러 실행")
             self.sched.add_job(function, 'cron',
-                               second='*/5',
+                               second='*/3',
                                id=job_id)
-
-
-
-# self.sched.add_job(function, type, seconds=10, id=job_id, args=(type, job_id, USER, ticker))
-
-

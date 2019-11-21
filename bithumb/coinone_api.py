@@ -138,7 +138,7 @@ class coinone:
             'buy-qty': str(qty),
             'massage' : massage,
         }
-
+        print(tradeHistory)
         return tradeHistory
 
     def _send_buy_signal(self,price,qty,ticker):
@@ -159,7 +159,7 @@ class coinone:
             print("매수 성공 ( %s )" % (json_r))
 
 
-    def coinone_sell_coin(self,ticker,price=-1, low=-1):
+    def coinone_sell_coin(self,ticker,price=-1):
         massage = ""
 
         # 가격값을 받아오지않은경우 현재 시세가로 측정
@@ -213,6 +213,7 @@ class coinone:
             'sell-qty': str(qty),
             'massage' : massage,
         }
+        print(tradeHistory)
         return tradeHistory
 
     def _send_sell_signal(self,price,qty,ticker):

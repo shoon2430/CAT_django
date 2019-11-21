@@ -30,7 +30,7 @@ mykey =hashlib.sha256(MY_SECRET_KEY.encode('utf-8')).digest()
 
 COINONE = coinoneSave(name="COINONE")
 tickers = kor_get_main_tickers()
-getDataScheduler = Scheduler()
+scheduler = Scheduler()
 
 #코인원 데이터 수집
 # 5분간 이동평균데이터를 만들기위해
@@ -123,25 +123,56 @@ def testing(request):
         # USER = ProgramUser.objects.get(userId=userId)
         # MY_LICENSE = APILicense.objects.get(userId=USER)
         # MY_COINONE = coinone(_setDeCrypto(MY_LICENSE.bit_publicKey), _setDeCrypto(MY_LICENSE.bit_privateKey))
-        #
+        # #
         # myScheduler = TradeScheduler.objects.filter(schedulerId=USER.mySchedulerId)
-        # print( len(myScheduler) )
-        #
+        # # print( len(myScheduler) )
+        # #
         # price = coinone_get_now_price(ticker)
         # #
         # print("price     = > %s"%(price))
         # #
         # print("start -test1")
-        # his = MY_COINONE.coinone_buy_coin(ticker, price)
-        # print(his)
         #
+        # massage = ""
+        #
+        # tradeHistory = MY_COINONE.coinone_buy_coin(ticker, price)
+        # if tradeHistory['massage'] != "":
+        #     massage = str(tradeHistory['massage'])
+        # else:
+        #     massage = "["+str(tradeHistory['currency'])+"] "+str(tradeHistory['buy-qty'])+"개를 매수 하였습니다. 매수가("+str(tradeHistory['buy-price'])+"원)"
+        #
+        # if massage != None:
+        #     send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+        #                      auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+        #                      from_number=_setDeCrypto(MY_LICENSE.tw_number),
+        #                      to_number=str('+82') + _setDeCrypto(USER.userPhone),
+        #                      contents=massage)
         # time.sleep(10)
         #
         # print("start -test2")
-        # his2 = MY_COINONE.coinone_sell_coin(ticker, price)
-        # print(his2)
+        # massage = ""
+        #
+        # tradeHistory2 = MY_COINONE.coinone_sell_coin(ticker, price)
+        # print(tradeHistory2)
+        # if tradeHistory2['massage'] != "":
+        #     massage = str(tradeHistory2['massage'])
+        # else:
+        #     massage = "[" + str(tradeHistory2['currency']) + "] " + str(
+        #         tradeHistory2['sell-qty']) + "개를 매도 하였습니다. 매수가(" + str(tradeHistory2['sell-price']) + "원)"
+        #
+        # if massage != None:
+        #     send_SMS_message(account_sid=_setDeCrypto(MY_LICENSE.tw_publicKey),
+        #                      auth_token=_setDeCrypto(MY_LICENSE.tw_privateKey),
+        #                      from_number=_setDeCrypto(MY_LICENSE.tw_number),
+        #                      to_number=str('+82') + _setDeCrypto(USER.userPhone),
+        #                      contents=massage)
 
-        getDataScheduler.scheduler("SAVE", "coinone-data-save", save_coinone_price_data, {})
+        scheduler.scheduler("SAVE", "coinone-data-save", save_coinone_price_data, {})
+        # tp  = TickerPrice.objects.filter(NAME='COINONE')
+        #
+        # for t in tp:
+        #     t.delete()
+
 
         # priceList = get_coinone_price_data()
         # priceData = coinone_get_ma_price(priceList, ticker, 5)
@@ -675,7 +706,12 @@ def _realTrading( type, job_id, USER, ticker):
             if re == "BUY" :
                 print("=== ShortTermInvestment => [BUY] ===")
                 tradeHistory = MY_COINONE.coinone_buy_coin(ticker,price)
-                massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)"%(tradeHistory['currency'], tradeHistory['buy-qty'], tradeHistory['buy-price'])
+                if tradeHistory['massage'] != "":
+                    massage = str(tradeHistory['massage'])
+                else :
+                    massage = "[%s] %s개를 매수 하였습니다. 매수가(%s원)" % (
+                    str(tradeHistory['currency']), str(tradeHistory['buy-qty']), str(tradeHistory['buy-price']))
+
                 print(massage)
 
                 if ST.firstBuyPrice ==0 :
@@ -690,13 +726,17 @@ def _realTrading( type, job_id, USER, ticker):
                 ST.save()
             elif re == "SELL" :
                 print("=== ShortTermInvestment => [SELL] ===")
-                tradeHistory = MY_COINONE.coinone_sell_coin(ticker,price,float(priceDataFrame.tail(1)['low']))
-                massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)"%(tradeHistory['currency'], tradeHistory['sell-qty'], tradeHistory['sell-price'])
+                tradeHistory = MY_COINONE.coinone_sell_coin(ticker,price)
+                if tradeHistory['massage'] != "":
+                    massage = str(tradeHistory['massage'])
+                else :
+                    massage = "[%s] %s개를 매도 하였습니다. 매도가(%s원)" % (
+                    str(tradeHistory['currency']), str(tradeHistory['sell-qty']), str(tradeHistory['sell-price']))
                 print(massage)
 
                 ST.tradeType = "SELL"
                 ST.firstBuyPrice = 0
-                ST.tradePrice = tradeHistory['sell-price']
+                ST.tradePrice = float(tradeHistory['sell-price'])
                 ST.upperCount = 0
                 ST.lowerCount = 0
                 ST.checkCount = 0

@@ -144,10 +144,10 @@ def ShortTermInvestment(priceDataFrame,price, stData):
     print(price_df)
     print("== ------------------------------ ==")
 
-    BUY_FULL_STACK = 3
-    BUY_RESET_STACK =6
-    SELLFULL_STACK =3
-    CHECK_FULL_STACK = 3
+    BUY_FULL_STACK = 2
+    BUY_RESET_STACK =5
+    SELLFULL_STACK =2
+    CHECK_FULL_STACK = 2
 
 
     # 밴드폭이 점점 커질경우

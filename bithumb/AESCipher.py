@@ -1,10 +1,7 @@
 import base64
-import hashlib
 
 from Cryptodome import Random
 from Cryptodome.Cipher import AES
-import time
-from cat.settings import MY_SECRET_KEY
 
 #암호화 모듈
 BS = 16

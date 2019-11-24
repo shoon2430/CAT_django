@@ -1,19 +1,12 @@
-import datetime
 import math
-
 import httplib2
 import time
-
-import numpy as np
 import pandas as pd
 import simplejson as json
 import base64
 import hmac
 import hashlib
 import requests
-import ast
-import urllib
-
 
 class coinone:
     def __init__(self, ACCESS_TOKEN, SECRET_KEY):

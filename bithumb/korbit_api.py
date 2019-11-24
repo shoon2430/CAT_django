@@ -1,5 +1,3 @@
-#bithumb에서 지원이 잘안되는 함수가있어 다른 거래소 추가
-import json
 import pykorbit
 import numpy as np
 import datetime

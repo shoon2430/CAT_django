@@ -1,13 +1,5 @@
-import time
-import datetime
-
-import pandas as pd
-
 from bithumb.coinone_api import *
 from bithumb.korbit_api import *
-import requests
-from forex_python.converter import CurrencyRates
-import numpy as np
 import matplotlib.pyplot as plt
 
 def showTradeStartInfo(job_id):
@@ -16,7 +8,7 @@ def showTradeStartInfo(job_id):
           + str(time.localtime().tm_sec)
 
     print("========== Scheduler Execute ==========")
-    print("=> TYPE[%s] Scheduler_ID[%s] : %s " % (type, job_id, now))
+    print("=> Scheduler[ %s ] : %s Execute!!" % (job_id, now))
 
 
 # 변동성 돌파
@@ -25,23 +17,22 @@ def BreakingVolatility(ticker="BTC"):
     target_price = kor_get_target_price(ticker)
     current_price = kor_get_now_price(ticker)
 
-    print('===[ MA5         ]===')
-    print("===        %s"%(str(ma5)))
-    print('===[ CurrentPrice ]===')
-    print("===        %s"%(str(current_price)))
-    print('===[ TargetPrice  ]===')
-    print("===        %s"%(str(target_price)))
+    print("==         현재 가격 정보          ==")
+    print("=== MA5          : "+str(ma5))
+    print("=== CurrentPrice : "+str(current_price))
+    print("=== TargetPrice  : "+str(target_price))
+    print("== ------------------------------ ==")
 
     if (current_price > target_price) and (current_price > ma5):
         print("=== BreakingVolatility ===")
         print("===        O K         ===")
 
-        return True
+        return "OK"
     else:
         print("=== BreakingVolatility ===")
         print("===        N O         ===")
 
-        return False
+        return "NO"
 
 def showBolingerBand(df):
     fig = plt.figure(figsize=(10,10))
@@ -77,14 +68,13 @@ def BolingerBand( ticker, n=20, k=2):
 
     # showBolingerBand(df)
 
-    print('===[ MA20                              ]===')
-    print("===        %s" % (str(df['ma20'][-1])))
-    print('===[ UPPER                             ]===')
-    print("===        %s" % (str(df['upper'][-1])))
-    print('===[ LOWER                             ]===')
-    print("===        %s" % (str(df['lower'][-1])))
-    print('===[ PRICE                             ]===')
-    print("===        %s" % (price))
+    print("==         현재 가격 정보          ==")
+    print("=== MA20  : " + str(df['ma20'][-1]))
+    print("=== UPPER : " + str(str(df['upper'][-1])))
+    print("=== LOWER : " + str(str(df['lower'][-1])))
+    print("=== PRICE : " + str(price))
+    print("== ------------------------------ ==")
+
 
     if float(price) > float(df['upper'][-1]):
         print("=== BolingerBand ===")
@@ -95,7 +85,8 @@ def BolingerBand( ticker, n=20, k=2):
         print("===     SELL     ===")
         return "SELL"
     else :
-        print("NONE")
+        print("=== BolingerBand ===")
+        print("===     NONE     ===")
 
     return "NONE"
 
@@ -104,9 +95,9 @@ def get_upper_rating(now, target):
     return (now -target) /target
 
 def ShortTermInvestment(priceDataFrame,price, stData):
-    print("== ------------------------------ ==")
-    print("===      ShortTermInvestment     ===")
-    print("== ------------------------------ ==")
+    #print("== ------------------------------ ==")
+    #print("===      ShortTermInvestment     ===")
+    #print("== ------------------------------ ==")
 
     price_ma = float(priceDataFrame.tail(1)['ma'])
     price_high = float(priceDataFrame.tail(1)['high'])
@@ -125,7 +116,7 @@ def ShortTermInvestment(priceDataFrame,price, stData):
         'checkCount': [stData['checkCount']],
     }
 
-    print("==         현재 스케쥴러 정보      ==")
+    print("==         현재 단기 투자 스케쥴러 정보      ==")
     st_df = pd.DataFrame(data)
     print(st_df)
     print("== ------------------------------ ==")
@@ -264,8 +255,6 @@ def ShortTermInvestment(priceDataFrame,price, stData):
             print("==------- 유지 카운트 증가 ------- ==")
             print("== ------------------------------ ==")
             return "CHECK_UP"
-
-
 
     return "NONE"
 

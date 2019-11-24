@@ -3,9 +3,12 @@
   <component name="ChangeListManager">
     <list default="true" id="693f1ecc-4edb-4c5a-b565-47b75d0c67db" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/AESCipher.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/AESCipher.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/apsScheduler.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/apsScheduler.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/coinone_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/coinone_api.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/korbit_api.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/korbit_api.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/static/js/custom.js" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/static/js/custom.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/bithumb/tests.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/tests.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/templates/bithumb/trading.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/tradeType.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/tradeType.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/bithumb/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/bithumb/views.py" afterDir="false" />
     </list>
@@ -212,6 +215,10 @@
           <url>file://$PROJECT_DIR$/bithumb/migrations/0001_initial.py</url>
           <line>2</line>
           <option name="timeStamp" value="2" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/bithumb/tradeType.py</url>
+          <option name="timeStamp" value="3" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

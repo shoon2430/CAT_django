@@ -54,7 +54,9 @@ class Scheduler:
             self.sched.add_job(function, 'cron', second=second,
                                                  id=job_id, args=(type, job_id, USER, ticker))
         if type == 'SAVE': #데이터 수집
-            print("데이터수집 스케쥴러 실행")
+            print("--------------------------------")
+            print("===  데이터수집 스케쥴러 실행  ===")
+            print("--------------------------------")
             self.sched.add_job(function, 'cron',
                                second='*/3',
                                id=job_id)

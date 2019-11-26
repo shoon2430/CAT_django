@@ -98,10 +98,6 @@ def testing(request):
         ticker = request.POST['ticker']
         type = request.POST['type']
 
-        print("=== TEST REQUEST ===")
-        print("userId : %s "%(userId))
-        print("ticker : %s "%(ticker))
-        print("type : %s "%(type))
 
         # USER = ProgramUser.objects.get(userId=userId)
         # _realTrading(type=type,job_id="TEST",USER=USER,ticker=ticker)
@@ -209,6 +205,12 @@ def login(request):
             if str(_setDeCrypto(PASS)) == str(userPassword) :
                 request.session['user_id'] = USER.userId
                 request.session['user_name'] = USER.userName
+
+                print("===       로그인 성공       ===")
+                print("=> USER ID   : %s "%(USER.userId))
+                print("=> USER NAME : %s " % (USER.userName))
+                print("------------------------------")
+
                 return redirect(reverse('cat'))
             else :
                 data = {'error': 'Please check your ID or Password'}
@@ -223,9 +225,13 @@ def login(request):
 def logout(request):
     print('LOGOUT~!!')
     try:
+        print("===       로그아웃         ===")
+        print("=> USER ID   : %s " % (str(request.session['user_id'])))
+        print("=> USER NAME : %s " % (str(request.session['user_name'])))
+        print("------------------------------")
+
         del request.session['user_id']
         del request.session['user_name']
-
         return redirect(reverse('login'))
     except Exception as e:
         print(e)
@@ -249,7 +255,12 @@ def signup(request):
                 userPhone= _setCrypto(phone),
                 status='N'
             )
-            print("USER_ID[%s] CREATE!! " % (Id))
+
+            print("===    SignUp Success      ===")
+            print("=> USER ID    : %s " % (Id))
+            print("=> USER NAME  : %s " % (Name))
+            print("=> USER PHONE : %s " % (phone))
+            print("------------------------------")
 
             user = ProgramUser.objects.get(userId= Id)
             Wallet.objects.create(
@@ -267,7 +278,6 @@ def signup(request):
         return render(request, 'bithumb/signup.html', {})
 
 def cat(request):
-    print("START CAT")
     try:
         userId = request.session.get('user_id')
         userName = request.session.get('user_name')
